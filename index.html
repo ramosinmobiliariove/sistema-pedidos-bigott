@@ -71,7 +71,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* Formato del Documento */
         .delivery-note {
             background: white;
             padding: 2rem;
@@ -146,13 +145,12 @@
 </head>
 <body>
 
-    <!-- Encabezado Principal -->
     <header class="header-bg no-print">
         <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div>
                     <h2 class="mb-0 fw-bold fs-3">EMPRENDIMIENTO EDWIN RAMOS 3</h2>
-                    <p class="mb-0 text-light opacity-75 small">Distribución Autorizada Cigarrera Bigott</p>
+                    <p class="mb-0 text-light opacity-75 small">Distribución Autorizada Cigarrera Bigott (Conectado a Sheets)</p>
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#adminModal">
@@ -167,10 +165,7 @@
     <div class="container mb-5">
         <div class="row">
             
-            <!-- Columna Izquierda: Formulario y Selección de Productos -->
             <div class="col-lg-7 no-print">
-                
-                <!-- Datos del Cliente, Factura y Tasa BCV -->
                 <div class="card mb-3">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-1">
                         <span><i class="bi bi-person-lines-fill me-2"></i> Datos del Cliente, Factura y Tasa</span>
@@ -188,9 +183,8 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
-                            <!-- Buscador Inteligente de Clientes -->
                             <div class="col-md-6 position-relative">
-                                <label class="form-label fw-bold small text-primary"><i class="bi bi-search me-1"></i> Buscar Cliente (Nombre, Código, Cédula o RIF)</label>
+                                <label class="form-label fw-bold small text-primary"><i class="bi bi-search me-1"></i> Buscar Cliente</label>
                                 <div class="input-group">
                                     <input type="text" id="clientSearchInput" class="form-control fw-bold" placeholder="Escribe para buscar..." oninput="filterClients(this.value)" autocomplete="off">
                                     <button class="btn btn-outline-success" type="button" onclick="openQuickNewClientModal()" title="Crear Cliente Nuevo">
@@ -243,7 +237,6 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Productos -->
                 <div class="card">
                     <div class="card-header">
                         <i class="bi bi-box-seam me-2"></i> Productos Disponibles (Precios por Brazo)
@@ -259,20 +252,15 @@
                                         <th class="text-end pe-3">Subtotal ($)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="productTableBody">
-                                    <!-- Generado dinámicamente -->
-                                </tbody>
+                                <tbody id="productTableBody"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Columna Derecha: Vista Previa y Documento -->
             <div class="col-lg-5">
                 <div class="card sticky-top" style="top: 20px;">
-                    
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2 no-print">
                         <div class="btn-group btn-group-sm" role="group">
                             <input type="radio" class="btn-check" name="docType" id="docTypePedido" value="pedido" onchange="toggleDocType('pedido')">
@@ -282,8 +270,8 @@
                             <label class="btn btn-outline-primary fw-bold" for="docTypeEntrega"><i class="bi bi-receipt me-1"></i> Nota Entrega</label>
                         </div>
                         <div class="d-flex gap-1 flex-wrap">
-                            <button class="btn btn-sm btn-info fw-bold text-white" onclick="saveOrderManual()" title="Guardar en Pendientes">
-                                <i class="bi bi-bookmark-check-fill me-1"></i> Guardar
+                            <button class="btn btn-sm btn-info fw-bold text-white" onclick="saveOrderManual()" title="Guardar en Google Sheets">
+                                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Guardar
                             </button>
                             <button class="btn btn-sm btn-success" onclick="sendWhatsAppMessage()" title="Enviar por WhatsApp">
                                 <i class="bi bi-whatsapp me-1"></i> Enviar WA
@@ -298,10 +286,7 @@
                     </div>
 
                     <div class="card-body">
-                        
-                        <!-- Área Imprimible -->
                         <div id="printableArea" class="delivery-note doc-type-entrega">
-                            
                             <div class="delivery-note-header text-center">
                                 <h4 class="fw-bold mb-0 text-uppercase" style="color: #002B49;">EMPRENDIMIENTO EDWIN RAMOS 3</h4>
                                 <small class="text-muted">Distribución de Cigarrillos Bigott</small><br>
@@ -335,9 +320,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="dnTableBody">
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-3">No hay productos seleccionados</td>
-                                    </tr>
+                                    <tr><td colspan="4" class="text-center text-muted py-3">No hay productos seleccionados</td></tr>
                                 </tbody>
                             </table>
 
@@ -372,24 +355,17 @@
                             </div>
 
                             <div class="row text-center mt-3 pt-2" style="font-size: 0.75rem;">
-                                <div class="col-6">
-                                    <div class="border-top pt-1">Despachado Por</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="border-top pt-1">Recibido Conforme</div>
-                                </div>
+                                <div class="col-6"><div class="border-top pt-1">Despachado Por</div></div>
+                                <div class="col-6"><div class="border-top pt-1">Recibido Conforme</div></div>
                             </div>
-
                         </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- MODAL PARA CREAR CLIENTE RÁPIDO -->
+    <!-- MODAL CLIENTE NUEVO -->
     <div class="modal fade" id="quickClientModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -400,7 +376,7 @@
                 <div class="modal-body">
                     <form id="quickClientForm" onsubmit="saveQuickClient(event)">
                         <div class="mb-2">
-                            <label class="form-label small fw-bold">Código Asignado Automáticamente</label>
+                            <label class="form-label small fw-bold">Código Asignado</label>
                             <input type="text" id="modalNewCode" class="form-control fw-bold text-primary bg-light" readonly>
                         </div>
                         <div class="mb-2">
@@ -409,7 +385,7 @@
                         </div>
                         <div class="mb-2">
                             <label class="form-label small fw-bold">Cédula o RIF</label>
-                            <input type="text" id="modalNewDoc" class="form-control" placeholder="V-12345678 o J-123456789">
+                            <input type="text" id="modalNewDoc" class="form-control" placeholder="V-12345678">
                         </div>
                         <div class="mb-2">
                             <label class="form-label small fw-bold">Teléfono</label>
@@ -420,121 +396,9 @@
                             <input type="text" id="modalNewAddress" class="form-control" placeholder="Dirección del local">
                         </div>
                         <button type="submit" class="btn btn-success w-100 fw-bold">
-                            <i class="bi bi-check-circle-fill me-1"></i> Guardar y Seleccionar Cliente
+                            <i class="bi bi-check-circle-fill me-1"></i> Guardar en Google Sheets
                         </button>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL PARA EDITAR CLIENTE -->
-    <div class="modal fade" id="editClientModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i> Editar Datos del Cliente</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editClientForm" onsubmit="updateClientData(event)">
-                        <input type="hidden" id="editClientIndex">
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Código Cliente</label>
-                            <input type="text" id="editClientCode" class="form-control fw-bold text-primary bg-light" readonly>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Nombre / Razón Social</label>
-                            <input type="text" id="editClientName" class="form-control" required>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Cédula o RIF</label>
-                            <input type="text" id="editClientDoc" class="form-control">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">Teléfono</label>
-                            <input type="text" id="editClientPhone" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Dirección</label>
-                            <input type="text" id="editClientAddress" class="form-control">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">
-                            <i class="bi bi-save-fill me-1"></i> Guardar Cambios
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL PARA EDITAR PEDIDO PENDIENTE / ABONOS -->
-    <div class="modal fade" id="editOrderModal" tabindex="-1" style="z-index: 1060;">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i> Gestionar Pedido y Abonos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="editOrderIndex">
-                    <div class="mb-2">
-                        <label class="form-label small fw-bold">Factura / Cliente / Código</label>
-                        <input type="text" id="editOrderClientInfo" class="form-control bg-light" readonly>
-                    </div>
-
-                    <!-- Listado de Productos del Pedido con opción de eliminar -->
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-primary"><i class="bi bi-box-seam me-1"></i> Listado de Productos en el Pedido</label>
-                        <div class="table-responsive" style="max-height: 180px; overflow-y: auto;">
-                            <table class="table table-sm table-bordered small align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th class="text-center" style="width: 80px;">Brazos</th>
-                                        <th class="text-end" style="width: 100px;">Subtotal</th>
-                                        <th class="text-center" style="width: 60px;">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="editOrderItemsTable">
-                                    <!-- Dinámico -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label small fw-bold">Total Pedido ($)</label>
-                            <input type="number" step="0.01" id="editOrderUSD" class="form-control fw-bold text-primary bg-light" readonly>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label small fw-bold text-success" title="Total ya abonado anteriormente">Abonado Acumulado ($)</label>
-                            <input type="number" step="0.01" id="editOrderPaid" class="form-control fw-bold text-success bg-light" readonly>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label small fw-bold text-warning" title="Escribe aquí si vas a registrar un nuevo abono">Nuevo Abono ($)</label>
-                            <input type="number" step="0.01" id="editOrderNewPaid" class="form-control fw-bold text-dark" value="0" oninput="calculatePendingBalance()" placeholder="Ej: 20">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-danger">Pendiente por Pagar ($)</label>
-                            <input type="text" id="editOrderPendingUSD" class="form-control fw-bold text-danger bg-light" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-danger">Pendiente por Pagar (Bs)</label>
-                            <input type="text" id="editOrderPendingBS" class="form-control fw-bold text-danger bg-light" readonly>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-warning w-100 fw-bold text-dark" onclick="saveOrderEditsFromModal()">
-                            <i class="bi bi-check-circle-fill me-1"></i> Guardar Cambios
-                        </button>
-                        <button type="button" class="btn btn-outline-danger fw-bold" onclick="deleteOrderFromModal()">
-                            <i class="bi bi-trash-fill"></i> Eliminar
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -545,76 +409,18 @@
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-gear-fill me-2"></i> Panel de Control y Administración</h5>
+                    <h5 class="modal-title fw-bold"><i class="bi bi-gear-fill me-2"></i> Panel de Control (Nube Google Sheets)</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#tabPrices">Costo Cajetilla y Margen (%)</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabClients">Gestión de Clientes</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabOrders">Pedidos Pendientes</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabHistory"><i class="bi bi-clock-history me-1"></i> Historial</button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabStats"><i class="bi bi-bar-chart-fill me-1"></i> Estadísticas</button>
-                        </li>
+                        <li class="nav-item"><button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#tabOrders">Pedidos Pendientes (Nube)</button></li>
+                        <li class="nav-item"><button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#tabClients">Clientes Registrados</button></li>
                     </ul>
 
                     <div class="tab-content">
-                        <!-- Pestaña 1: Costo Cajetilla y Margen -->
-                        <div class="tab-pane fade show active" id="tabPrices">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="text-primary fw-bold mb-0">Costo por Cajetilla ($), % de Ganancia y Precio Total de Venta por Brazo ($)</h6>
-                                <button class="btn btn-success fw-bold btn-sm" onclick="saveAllPrices()">
-                                    <i class="bi bi-save me-1"></i> Guardar Todos
-                                </button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle small">
-                                    <thead class="table-light text-center">
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th style="width: 170px;">Costo Cajetilla ($)</th>
-                                            <th style="width: 140px;">Ganancia (%)</th>
-                                            <th style="width: 190px;">Precio Brazo Venta ($)</th>
-                                            <th style="width: 120px;">Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="adminPricesBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Pestaña 2: Clientes -->
-                        <div class="tab-pane fade" id="tabClients">
-                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-database-fill me-1"></i> Base de Datos de Clientes Guardados</h6>
-                            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
-                                <table class="table table-striped table-bordered small align-middle">
-                                    <thead class="table-dark sticky-top">
-                                        <tr>
-                                            <th>Código</th>
-                                            <th>Cliente</th>
-                                            <th>Cédula / RIF</th>
-                                            <th>Teléfono</th>
-                                            <th>Dirección</th>
-                                            <th class="text-center" style="width: 120px;">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="adminClientsBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Pestaña 3: Pedidos Pendientes -->
-                        <div class="tab-pane fade" id="tabOrders">
-                            <h6 class="fw-bold text-primary mb-3">Listado de Pedidos Pendientes por Despachar y Estado de Pago</h6>
+                        <div class="tab-pane fade show active" id="tabOrders">
+                            <h6 class="fw-bold text-primary mb-3">Pedidos Pendientes Sincronizados desde Google Sheets</h6>
                             <div class="table-responsive">
                                 <table class="table table-bordered small align-middle">
                                     <thead class="table-dark">
@@ -624,102 +430,30 @@
                                             <th>Código / Cliente</th>
                                             <th>Detalle Productos</th>
                                             <th>Total ($)</th>
-                                            <th>Abonado ($)</th>
-                                            <th>Pendiente ($ / Bs)</th>
-                                            <th class="text-center" style="width: 180px;">Acciones</th>
+                                            <th class="text-center">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="adminOrdersBody">
-                                        <tr><td colspan="8" class="text-center text-muted py-3">No hay pedidos pendientes</td></tr>
+                                        <tr><td colspan="6" class="text-center text-muted py-3">Cargando datos desde la nube...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
-                        <!-- Pestaña 4: Historial de Movimientos -->
-                        <div class="tab-pane fade" id="tabHistory">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold text-primary mb-0"><i class="bi bi-clock-history me-1"></i> Registro de Actividad y Movimientos</h6>
-                                <button class="btn btn-sm btn-outline-danger" onclick="clearHistory()">
-                                    <i class="bi bi-trash me-1"></i> Limpiar Historial
-                                </button>
-                            </div>
-                            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                        <div class="tab-pane fade" id="tabClients">
+                            <h6 class="fw-bold text-primary mb-3">Base de Datos de Clientes</h6>
+                            <div class="table-responsive">
                                 <table class="table table-striped table-bordered small align-middle">
-                                    <thead class="table-dark sticky-top">
+                                    <thead class="table-dark">
                                         <tr>
-                                            <th>Fecha y Hora</th>
-                                            <th>Tipo de Movimiento</th>
-                                            <th>Cliente / Afectado</th>
-                                            <th>Detalle del Movimiento</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="adminHistoryBody">
-                                        <tr><td colspan="4" class="text-center text-muted py-3">No hay movimientos registrados</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Pestaña 5: Estadísticas -->
-                        <div class="tab-pane fade" id="tabStats">
-                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                                <h6 class="fw-bold text-primary mb-0"><i class="bi bi-bar-chart-fill me-1"></i> Resumen de Ventas y Ganancias</h6>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <input type="radio" class="btn-check" name="statFilter" id="statAll" value="all" checked onchange="updateStatistics()">
-                                    <label class="btn btn-outline-primary fw-bold" for="statAll">Todo</label>
-
-                                    <input type="radio" class="btn-check" name="statFilter" id="statDay" value="day" onchange="updateStatistics()">
-                                    <label class="btn btn-outline-primary fw-bold" for="statDay">Día</label>
-
-                                    <input type="radio" class="btn-check" name="statFilter" id="statWeek" value="week" onchange="updateStatistics()">
-                                    <label class="btn btn-outline-primary fw-bold" for="statWeek">Semana</label>
-
-                                    <input type="radio" class="btn-check" name="statFilter" id="statMonth" value="month" onchange="updateStatistics()">
-                                    <label class="btn btn-outline-primary fw-bold" for="statMonth">Mes</label>
-
-                                    <input type="radio" class="btn-check" name="statFilter" id="statYear" value="year" onchange="updateStatistics()">
-                                    <label class="btn btn-outline-primary fw-bold" for="statYear">Año</label>
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-4">
-                                    <div class="card bg-primary text-white p-3 shadow-sm">
-                                        <div class="small text-uppercase opacity-75 fw-bold">Total Ventas</div>
-                                        <h3 class="fw-bold mb-0" id="statTotalSales">$0.00</h3>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-success text-white p-3 shadow-sm">
-                                        <div class="small text-uppercase opacity-75 fw-bold">Ganancia Estimada</div>
-                                        <h3 class="fw-bold mb-0" id="statTotalProfit">$0.00</h3>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="card bg-dark text-white p-3 shadow-sm">
-                                        <div class="small text-uppercase opacity-75 fw-bold">Pedidos Despachados</div>
-                                        <h3 class="fw-bold mb-0" id="statTotalOrders">0</h3>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h6 class="fw-bold text-primary mb-2">Detalle de Despachos Registrados</h6>
-                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                                <table class="table table-striped table-bordered small align-middle">
-                                    <thead class="table-dark sticky-top">
-                                        <tr>
-                                            <th>Fecha y Hora</th>
-                                            <th>Factura</th>
+                                            <th>Código</th>
                                             <th>Cliente</th>
-                                            <th>Detalle</th>
-                                            <th>Monto ($)</th>
-                                            <th>Ganancia Est. ($)</th>
+                                            <th>Cédula / RIF</th>
+                                            <th>Teléfono</th>
+                                            <th>Dirección</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="statOrdersBody">
-                                        <tr><td colspan="6" class="text-center text-muted py-3">No hay despachos registrados para este periodo</td></tr>
-                                    </tbody>
+                                    <tbody id="adminClientsBody"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -729,40 +463,35 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // URL DE TU GOOGLE APPS SCRIPT (API CONECTADA A SHEETS)
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzwNXIl9w2m_k5MmG4ALIULFPoqaX5A7mnJbrkpygZ7r_sMZSEIWrdFZNxks_s4X8Sfw/exec';
+
         let defaultProducts = [
-            { id: 'belmont_g', name: 'Belmont Grande', packCost: 2.30, margin: 19.39, price: 27.46, img: 'belmont_grande.png' },
-            { id: 'belmont_p', name: 'Belmont Pequeño', packCost: 1.20, margin: 19.58, price: 14.35, img: 'belmont_pequeno.png' },
-            { id: 'viceroy', name: 'Viceroy', packCost: 1.50, margin: 19.93, price: 17.99, img: 'viceroy.png' },
-            { id: 'universal', name: 'Universal', packCost: 1.48, margin: 20.14, price: 17.78, img: 'universal.png' },
-            { id: 'lucky_cosmic', name: 'Lucky Strike Cosmic', packCost: 2.65, margin: 19.32, price: 31.62, img: 'lucky_cosmic.png' },
-            { id: 'lucky_nova', name: 'Lucky Strike Nova', packCost: 2.65, margin: 19.32, price: 31.62, img: 'lucky_nova.png' },
-            { id: 'lucky_red', name: 'Lucky Strike Red', packCost: 2.45, margin: 19.27, price: 29.22, img: 'lucky_red.png' },
-            { id: 'consul', name: 'Consul', packCost: 1.24, margin: 19.92, price: 14.87, img: 'consul.png' }
+            { id: 'belmont_g', name: 'Belmont Grande', price: 27.46, img: 'belmont_grande.png' },
+            { id: 'belmont_p', name: 'Belmont Pequeño', price: 14.35, img: 'belmont_pequeno.png' },
+            { id: 'viceroy', name: 'Viceroy', price: 17.99, img: 'viceroy.png' },
+            { id: 'universal', name: 'Universal', price: 17.78, img: 'universal.png' },
+            { id: 'lucky_cosmic', name: 'Lucky Strike Cosmic', price: 31.62, img: 'lucky_cosmic.png' },
+            { id: 'lucky_nova', name: 'Lucky Strike Nova', price: 31.62, img: 'lucky_nova.png' },
+            { id: 'lucky_red', name: 'Lucky Strike Red', price: 29.22, img: 'lucky_red.png' },
+            { id: 'consul', name: 'Consul', price: 14.87, img: 'consul.png' }
         ];
 
-        let products = JSON.parse(localStorage.getItem('bigott_products')) || defaultProducts;
+        let products = defaultProducts;
         let clients = JSON.parse(localStorage.getItem('bigott_clients')) || [];
-        let pendingOrders = JSON.parse(localStorage.getItem('bigott_orders')) || [];
-        let completedOrders = JSON.parse(localStorage.getItem('bigott_completed_orders')) || [];
-        let activityHistory = JSON.parse(localStorage.getItem('bigott_history')) || [];
-        let lastInvoiceCounter = parseInt(localStorage.getItem('bigott_invoice_counter')) || 1;
-
+        let pendingOrders = [];
         let quantities = {};
         let activeDocType = 'entrega';
+        let lastInvoiceCounter = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
             renderProductTable();
             clearClientFields();
             fetchBCVRate();
-            renderAdminPrices();
-            renderAdminClients();
-            renderAdminOrders();
-            renderAdminHistory();
-            updateStatistics();
+            loadOrdersFromCloud();
             
             const today = new Date();
             document.getElementById('dnDate').innerText = today.toLocaleDateString('es-VE');
@@ -788,20 +517,6 @@
                 if(input) input.value = 0;
             });
             updateCalculations();
-        }
-
-        function logActivity(type, clientName, details) {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('es-VE') + ' ' + now.toLocaleTimeString('es-VE');
-            const logEntry = {
-                date: dateStr,
-                type: type,
-                client: clientName || 'N/A',
-                details: details
-            };
-            activityHistory.unshift(logEntry);
-            localStorage.setItem('bigott_history', JSON.stringify(activityHistory));
-            renderAdminHistory();
         }
 
         function toggleDocType(type) {
@@ -836,14 +551,14 @@
             );
 
             if (filtered.length === 0) {
-                resultsBox.innerHTML = `<div class="list-group-item text-muted small py-2">No se encontró el cliente. Haz clic en <strong>"Nuevo"</strong> para crearlo.</div>`;
+                resultsBox.innerHTML = `<div class="list-group-item text-muted small py-2">Cliente no encontrado. Haz clic en <strong>"Nuevo"</strong>.</div>`;
             } else {
                 resultsBox.innerHTML = '';
                 filtered.forEach(c => {
                     const item = document.createElement('a');
                     item.href = '#';
                     item.className = 'list-group-item list-group-item-action small py-2';
-                    item.innerHTML = `<strong>${c.code}</strong> - ${c.name} <span class="text-muted">(${c.doc || 'Sin Cédula/RIF'})</span>`;
+                    item.innerHTML = `<strong>${c.code}</strong> - ${c.name} <span class="text-muted">(${c.doc || 'Sin Doc'})</span>`;
                     item.onclick = (e) => {
                         e.preventDefault();
                         selectClient(c);
@@ -865,53 +580,6 @@
             updateCalculations();
         }
 
-        function searchInvoicePrompt() {
-            const num = prompt("Ingresa el número de factura a consultar (ejemplo: FAC-0001 o 1):");
-            if (!num) return;
-
-            let cleanNum = num.trim().toUpperCase();
-            if (!cleanNum.startsWith("FAC-")) {
-                const numericOnly = cleanNum.replace(/[^0-9]/g, '');
-                if (numericOnly) {
-                    cleanNum = `FAC-${numericOnly.padStart(4, '0')}`;
-                }
-            }
-
-            let found = pendingOrders.find(o => o.invoiceNum === cleanNum) || completedOrders.find(o => o.invoiceNum === cleanNum);
-
-            if (found) {
-                loadOrderToMainView(found);
-                alert(`¡Factura ${cleanNum} cargada en pantalla exitosamente!`);
-            } else {
-                alert(`No se encontró ninguna factura registrada con el número: ${cleanNum}`);
-            }
-        }
-
-        function loadOrderToMainView(order) {
-            document.getElementById('clientCode').value = order.code || 'COD-001';
-            document.getElementById('invoiceNum').value = order.invoiceNum || 'FAC-0001';
-            document.getElementById('clientName').value = order.client || '';
-            document.getElementById('clientDoc').value = order.doc || '';
-            document.getElementById('clientPhone').value = order.phone || '';
-            document.getElementById('clientAddress').value = order.address || '';
-
-            products.forEach(p => quantities[p.id] = 0);
-
-            if (Array.isArray(order.items)) {
-                order.items.forEach(item => {
-                    const prod = products.find(p => p.name.toLowerCase() === item.name.toLowerCase());
-                    if (prod) {
-                        quantities[prod.id] = item.qty;
-                        const input = document.getElementById(`qty_${prod.id}`);
-                        if (input) input.value = item.qty;
-                    }
-                });
-            }
-
-            renderProductTable();
-            updateCalculations();
-        }
-
         function openQuickNewClientModal() {
             const nextCode = `COD-${String(clients.length + 1).padStart(3, '0')}`;
             document.getElementById('modalNewCode').value = nextCode;
@@ -924,9 +592,10 @@
             myModal.show();
         }
 
-        function saveQuickClient(e) {
+        async function saveQuickClient(e) {
             e.preventDefault();
             const newC = {
+                action: 'saveClient',
                 code: document.getElementById('modalNewCode').value,
                 name: document.getElementById('modalNewName').value,
                 doc: document.getElementById('modalNewDoc').value,
@@ -934,79 +603,42 @@
                 address: document.getElementById('modalNewAddress').value
             };
 
-            clients.push(newC);
-            localStorage.setItem('bigott_clients', JSON.stringify(clients));
-            selectClient(newC);
-            renderAdminClients();
-
-            logActivity('Creación de Cliente', newC.name, `Nuevo cliente registrado (${newC.code} - ${newC.doc || 'Sin Doc'})`);
-
-            const modalEl = document.getElementById('quickClientModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            modalInstance.hide();
-            alert(`¡Cliente ${newC.name} creado con código ${newC.code} exitosamente!`);
-        }
-
-        function openEditClientModal(index) {
-            const c = clients[index];
-            document.getElementById('editClientIndex').value = index;
-            document.getElementById('editClientCode').value = c.code;
-            document.getElementById('editClientName').value = c.name;
-            document.getElementById('editClientDoc').value = c.doc || '';
-            document.getElementById('editClientPhone').value = c.phone || '';
-            document.getElementById('editClientAddress').value = c.address || '';
-
-            const editModal = new bootstrap.Modal(document.getElementById('editClientModal'));
-            editModal.show();
-        }
-
-        function updateClientData(e) {
-            e.preventDefault();
-            const index = document.getElementById('editClientIndex').value;
-            if (index !== "" && clients[index]) {
-                clients[index].name = document.getElementById('editClientName').value;
-                clients[index].doc = document.getElementById('editClientDoc').value;
-                clients[index].phone = document.getElementById('editClientPhone').value;
-                clients[index].address = document.getElementById('editClientAddress').value;
-
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(newC) });
+                clients.push(newC);
                 localStorage.setItem('bigott_clients', JSON.stringify(clients));
+                selectClient(newC);
                 renderAdminClients();
 
-                if (document.getElementById('clientCode').value === clients[index].code) {
-                    selectClient(clients[index]);
-                }
-
-                logActivity('Modificación de Cliente', clients[index].name, `Datos actualizados para el código ${clients[index].code}`);
-
-                const modalEl = document.getElementById('editClientModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                modalInstance.hide();
-                alert('¡Datos del cliente actualizados con éxito!');
+                const modalEl = document.getElementById('quickClientModal');
+                bootstrap.Modal.getInstance(modalEl).hide();
+                alert(`¡Cliente ${newC.name} guardado en Google Sheets con éxito!`);
+            } catch (err) {
+                alert('Error al guardar en la nube: ' + err);
             }
         }
 
         function renderProductTable() {
             const tbody = document.getElementById('productTableBody');
             tbody.innerHTML = '';
-
             products.forEach(p => {
                 if (quantities[p.id] === undefined) quantities[p.id] = 0;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <img src="${p.img}" alt="${p.name}" class="product-img me-2">
-                            <div class="fw-bold">${p.name}</div>
-                        </div>
-                    </td>
-                    <td class="text-center fw-semibold text-primary">$${p.price.toFixed(2)}</td>
-                    <td class="text-center">
-                        <input type="number" min="0" value="${quantities[p.id]}" class="form-control form-control-sm qty-input mx-auto" 
-                               id="qty_${p.id}" onchange="updateQty('${p.id}', this.value)">
-                    </td>
-                    <td class="text-end pe-3 fw-bold" id="subtotal_${p.id}">$${(quantities[p.id] * p.price).toFixed(2)}</td>
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="${p.img}" alt="${p.name}" class="product-img me-2">
+                                <div class="fw-bold">${p.name}</div>
+                            </div>
+                        </td>
+                        <td class="text-center fw-semibold text-primary">$${p.price.toFixed(2)}</td>
+                        <td class="text-center">
+                            <input type="number" min="0" value="${quantities[p.id]}" class="form-control form-control-sm qty-input mx-auto" 
+                                   id="qty_${p.id}" onchange="updateQty('${p.id}', this.value)">
+                        </td>
+                        <td class="text-end pe-3 fw-bold" id="subtotal_${p.id}">$${(quantities[p.id] * p.price).toFixed(2)}</td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
         }
 
@@ -1024,13 +656,11 @@
                 const qty = quantities[p.id] || 0;
                 const sub = qty * p.price;
                 totalUSD += sub;
-                
                 const subElem = document.getElementById(`subtotal_${p.id}`);
                 if (subElem) subElem.innerText = `$${sub.toFixed(2)}`;
             });
 
             const totalBS = totalUSD * bcv;
-
             document.getElementById('cornerBcvRate').innerText = `${bcv.toFixed(2)} Bs/$`;
             document.getElementById('dnClientCode').innerText = document.getElementById('clientCode').value || 'COD-001';
             document.getElementById('dnInvoiceNum').innerText = document.getElementById('invoiceNum').value || 'FAC-0001';
@@ -1042,21 +672,14 @@
 
             const dnBody = document.getElementById('dnTableBody');
             dnBody.innerHTML = '';
-
             let itemsAdded = false;
+
             products.forEach(p => {
                 const qty = quantities[p.id] || 0;
                 if (qty > 0) {
                     itemsAdded = true;
                     const sub = qty * p.price;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="text-center fw-bold">${qty}</td>
-                        <td>${p.name}</td>
-                        <td class="text-end">$${p.price.toFixed(2)}</td>
-                        <td class="text-end fw-bold">$${sub.toFixed(2)}</td>
-                    `;
-                    dnBody.appendChild(tr);
+                    dnBody.innerHTML += `<tr><td class="text-center fw-bold">${qty}</td><td>${p.name}</td><td class="text-end">$${p.price.toFixed(2)}</td><td class="text-end fw-bold">$${sub.toFixed(2)}</td></tr>`;
                 }
             });
 
@@ -1065,18 +688,14 @@
             }
         }
 
-        function saveOrderManual() {
-            const code = document.getElementById('clientCode').value || 'COD-001';
-            const invoiceNum = document.getElementById('invoiceNum').value || generateNextInvoiceNumber();
+        async function saveOrderManual() {
             const client = document.getElementById('clientName').value;
             if(!client || client.trim() === '') {
                 alert('Por favor ingresa o selecciona el nombre del cliente.');
                 return;
             }
 
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 0;
             let totalUSD = 0;
-            let totalProfit = 0;
             let orderItems = [];
 
             products.forEach(p => {
@@ -1084,52 +703,80 @@
                 if (qty > 0) {
                     const sub = qty * p.price;
                     totalUSD += sub;
-                    
-                    const armCost = (p.packCost || 2) * 10;
-                    const profitPerArm = armCost * ((p.margin || 20) / 100);
-                    totalProfit += profitPerArm * qty;
-
                     orderItems.push({ name: p.name, qty: qty, price: p.price, subtotal: sub });
                 }
             });
 
             if (totalUSD === 0) {
-                alert('Selecciona al menos un producto antes de guardar el pedido.');
+                alert('Selecciona al menos un producto antes de guardar.');
                 return;
             }
 
             const now = new Date();
-            const dateAndTimeString = now.toLocaleDateString('es-VE') + ' ' + now.toLocaleTimeString('es-VE');
-
-            const newOrder = {
-                id: Date.now(),
-                rawDate: now.toISOString(),
-                date: dateAndTimeString,
-                code: code,
-                invoiceNum: invoiceNum,
+            const orderData = {
+                action: 'saveOrder',
+                date: now.toLocaleDateString('es-VE') + ' ' + now.toLocaleTimeString('es-VE'),
+                invoiceNum: document.getElementById('invoiceNum').value,
+                code: document.getElementById('clientCode').value,
                 client: client,
-                doc: document.getElementById('clientDoc').value || '',
                 phone: document.getElementById('clientPhone').value || '',
-                address: document.getElementById('clientAddress').value || '',
                 items: orderItems,
                 totalUSD: totalUSD.toFixed(2),
-                paidUSD: 0.00,
-                totalProfit: totalProfit.toFixed(2),
-                totalBS: (totalUSD * bcv).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                paidUSD: 0.00
             };
-            
-            pendingOrders.push(newOrder);
-            localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
 
-            lastInvoiceCounter++;
-            localStorage.setItem('bigott_invoice_counter', lastInvoiceCounter.toString());
+            try {
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) });
+                alert('¡Pedido guardado exitosamente en Google Sheets!');
+                lastInvoiceCounter++;
+                clearClientFields();
+                loadOrdersFromCloud();
+            } catch (err) {
+                alert('Error al guardar en Google Sheets: ' + err);
+            }
+        }
 
-            renderAdminOrders();
+        async function loadOrdersFromCloud() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=getOrders`);
+                const data = await res.json();
+                pendingOrders = data || [];
+                renderAdminOrders();
+            } catch (err) {
+                console.error('Error cargando pedidos:', err);
+            }
+        }
 
-            const itemsStr = orderItems.map(i => `${i.qty}x ${i.name}`).join(', ');
-            logActivity('Creación de Pedido', client, `Factura ${invoiceNum} guardada (${itemsStr}) por $${totalUSD.toFixed(2)}`);
-            alert(`¡Factura ${invoiceNum} guardada con éxito en los pendientes por despachar!`);
-            clearClientFields();
+        function renderAdminOrders() {
+            const tbody = document.getElementById('adminOrdersBody');
+            if (pendingOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay pedidos en la nube</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            pendingOrders.forEach((o, index) => {
+                let itemsText = Array.isArray(o.items) ? o.items.map(i => `${i.qty}x ${i.name}`).join(', ') : o.items;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="small text-muted">${o.date}</td>
+                        <td class="fw-bold text-danger">${o.invoiceNum || 'FAC-0001'}</td>
+                        <td><span class="fw-bold text-primary">${o.code}</span> - ${o.client}</td>
+                        <td>${itemsText}</td>
+                        <td class="fw-bold">$${parseFloat(o.totalUSD || 0).toFixed(2)}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-success" onclick="resendWhatsApp(${index})"><i class="bi bi-whatsapp"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAdminClients() {
+            const tbody = document.getElementById('adminClientsBody');
+            tbody.innerHTML = '';
+            clients.forEach(c => {
+                tbody.innerHTML += `<tr><td class="fw-bold text-primary">${c.code}</td><td>${c.name}</td><td>${c.doc || '-'}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td></tr>`;
+            });
         }
 
         async function fetchBCVRate() {
@@ -1148,547 +795,31 @@
             window.print();
         }
 
-        function generateWhatsAppMessageText(code, invoiceNum, client, itemsArray, totalUSD, bcv, docType) {
-            let itemsText = '';
-            itemsArray.forEach(i => {
-                itemsText += `• ${i.qty}x ${i.name} — $${(i.subtotal || (i.qty * i.price)).toFixed(2)}\n`;
-            });
-
-            const totalBS = (totalUSD * bcv).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const docTitleText = docType === 'pedido' ? 'NOTA DE PEDIDO' : 'NOTA DE ENTREGA';
-
-            let message = `📦 *EMPRENDIMIENTO EDWIN RAMOS 3*\n` +
-                `📋 *${docTitleText}*\n` +
-                `🧾 *Factura N°:* ${invoiceNum}\n` +
-                `🔖 *Código Cliente:* ${code}\n` +
-                `👤 *Cliente:* ${client}\n` +
-                `📅 *Fecha:* ${document.getElementById('dnDate').innerText}\n\n` +
-                `*DETALLE DEL PEDIDO (Por Brazos):*\n` +
-                `${itemsText}\n` +
-                `💵 *Total USD:* $${totalUSD.toFixed(2)}\n`;
-
-            if (docType === 'entrega') {
-                message += `🇻🇪 *Total a Pagar:* ${totalBS} Bs\n` +
-                    `🏦 *Ref. Tasa BCV:* ${bcv.toFixed(2)} Bs/$\n\n` +
-                    `💳 *DATOS DE PAGO:*\n\n` +
-                    `*Banco de Venezuela (Cuenta Corriente)*\n` +
-                    `N°: 0102-0105-57-0000043070\n` +
-                    `Titular: Edwin Ramos\n` +
-                    `C.I.: 18.029.107\n\n` +
-                    `*Pago Móvil (Banco de Venezuela)*\n` +
-                    `C.I.: 18.029.107\n` +
-                    `Teléfono: 0414-2471765\n\n` +
-                    `_Por favor enviarnos el comprobante de pago una vez realizada la transferencia. ¡Muchas gracias por su compra!_`;
-            } else {
-                message += `\n_Nota de pedido generada para confirmación de inventario y despacho._`;
-            }
-            return message;
-        }
-
-        function copyWhatsAppMessage() {
-            const code = document.getElementById('clientCode').value;
-            const invoiceNum = document.getElementById('invoiceNum').value || 'FAC-0001';
-            const client = document.getElementById('clientName').value || 'Cliente';
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 0;
-            let totalUSD = 0;
-            let orderItems = [];
-
-            products.forEach(p => {
-                const qty = quantities[p.id] || 0;
-                if (qty > 0) {
-                    const sub = qty * p.price;
-                    totalUSD += sub;
-                    orderItems.push({ name: p.name, qty: qty, price: p.price, subtotal: sub });
-                }
-            });
-
-            if (totalUSD === 0) {
-                alert('Selecciona al menos un producto antes de generar el mensaje.');
-                return;
-            }
-
-            const message = generateWhatsAppMessageText(code, invoiceNum, client, orderItems, totalUSD, bcv, activeDocType);
-            const docTitleText = activeDocType === 'pedido' ? 'NOTA DE PEDIDO' : 'NOTA DE ENTREGA';
-
-            navigator.clipboard.writeText(message).then(() => {
-                alert(`¡${docTitleText} copiada con éxito al portapapeles!`);
-            });
-        }
-
         function sendWhatsAppMessage() {
-            const code = document.getElementById('clientCode').value;
-            const invoiceNum = document.getElementById('invoiceNum').value || 'FAC-0001';
             const client = document.getElementById('clientName').value || 'Cliente';
             const phone = document.getElementById('clientPhone').value.trim();
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 0;
             let totalUSD = 0;
-            let orderItems = [];
+            let itemsText = '';
 
             products.forEach(p => {
                 const qty = quantities[p.id] || 0;
                 if (qty > 0) {
-                    const sub = qty * p.price;
+                    let sub = qty * p.price;
                     totalUSD += sub;
-                    orderItems.push({ name: p.name, qty: qty, price: p.price, subtotal: sub });
+                    itemsText += `• ${qty}x ${p.name} — $${sub.toFixed(2)}\n`;
                 }
             });
 
             if (totalUSD === 0) {
-                alert('Selecciona al menos un producto antes de enviar por WhatsApp.');
+                alert('Selecciona productos antes de enviar.');
                 return;
             }
 
-            const message = generateWhatsAppMessageText(code, invoiceNum, client, orderItems, totalUSD, bcv, activeDocType);
+            let message = `📦 *EMPRENDIMIENTO EDWIN RAMOS 3*\n🧾 *${document.getElementById('invoiceNum').value}*\n👤 *Cliente:* ${client}\n\n${itemsText}\n💵 *Total USD:* $${totalUSD.toFixed(2)}`;
             let cleanPhone = phone.replace(/[^0-9]/g, '');
-            if (cleanPhone.startsWith('0')) {
-                cleanPhone = '58' + cleanPhone.substring(1);
-            }
+            if (cleanPhone.startsWith('0')) cleanPhone = '58' + cleanPhone.substring(1);
 
-            const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
-        function resendOrderWhatsApp(index, type = 'entrega') {
-            const o = pendingOrders[index];
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 887.30;
-            const message = generateWhatsAppMessageText(o.code, o.invoiceNum || 'FAC-0001', o.client, o.items, parseFloat(o.totalUSD), bcv, type);
-
-            let cleanPhone = (o.phone || '').replace(/[^0-9]/g, '');
-            if (cleanPhone.startsWith('0')) {
-                cleanPhone = '58' + cleanPhone.substring(1);
-            }
-
-            const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
-        function calculateArmSellingPrice(index) {
-            const packCost = parseFloat(document.getElementById(`packCost_${index}`).value) || 0;
-            const margin = parseFloat(document.getElementById(`margin_${index}`).value) || 0;
-            const armCost = packCost * 10;
-            const sellingPrice = armCost + (armCost * (margin / 100));
-            document.getElementById(`price_${index}`).value = sellingPrice.toFixed(2);
-        }
-
-        function renderAdminPrices() {
-            const tbody = document.getElementById('adminPricesBody');
-            tbody.innerHTML = '';
-            products.forEach((p, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="${p.img}" class="product-img me-2">
-                                <span class="fw-bold">${p.name}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="number" step="0.01" id="packCost_${index}" value="${p.packCost !== undefined ? p.packCost : (p.price / 10 * 0.8).toFixed(2)}" class="form-control form-control-sm fw-bold" oninput="calculateArmSellingPrice(${index})">
-                        </td>
-                        <td>
-                            <input type="number" step="0.01" id="margin_${index}" value="${p.margin !== undefined ? p.margin : 20.00}" class="form-control form-control-sm fw-bold text-success" oninput="calculateArmSellingPrice(${index})">
-                        </td>
-                        <td>
-                            <input type="number" step="0.01" id="price_${index}" value="${p.price}" class="form-control form-control-sm fw-bold text-primary bg-light" readonly>
-                        </td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-success fw-bold px-3" onclick="updateSinglePrice(${index})">
-                                <i class="bi bi-check-lg me-1"></i> Guardar
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function updateSinglePrice(index) {
-            const packCost = parseFloat(document.getElementById(`packCost_${index}`).value);
-            const margin = parseFloat(document.getElementById(`margin_${index}`).value);
-            const price = parseFloat(document.getElementById(`price_${index}`).value);
-
-            if (!isNaN(price) && price >= 0) {
-                products[index].packCost = packCost;
-                products[index].margin = margin;
-                products[index].price = price;
-                
-                localStorage.setItem('bigott_products', JSON.stringify(products));
-                renderProductTable();
-                updateCalculations();
-
-                logActivity('Modificación de Precio', 'General (Catálogo)', `Nuevo precio brazo para ${products[index].name}: $${price.toFixed(2)} (Costo Cajetilla: $${packCost}, Margen: ${margin}%)`);
-                alert(`¡Precio y margen de ${products[index].name} actualizados con éxito!`);
-            } else {
-                alert('Por favor ingresa valores válidos.');
-            }
-        }
-
-        function saveAllPrices() {
-            products.forEach((p, index) => {
-                const packCost = parseFloat(document.getElementById(`packCost_${index}`).value);
-                const margin = parseFloat(document.getElementById(`margin_${index}`).value);
-                const price = parseFloat(document.getElementById(`price_${index}`).value);
-
-                if (!isNaN(price) && price >= 0) {
-                    p.packCost = packCost;
-                    p.margin = margin;
-                    p.price = price;
-                }
-            });
-            localStorage.setItem('bigott_products', JSON.stringify(products));
-            renderProductTable();
-            updateCalculations();
-
-            logActivity('Modificación de Precios', 'General (Catálogo)', 'Se actualizaron los costos por cajetilla y márgenes de ganancia de todo el catálogo');
-            alert('¡Todos los precios y márgenes han sido actualizados y guardados correctamente!');
-        }
-
-        function renderAdminClients() {
-            const tbody = document.getElementById('adminClientsBody');
-            if (clients.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay clientes registrados</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = '';
-            clients.forEach((c, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold text-primary">${c.code}</td>
-                        <td>${c.name}</td>
-                        <td>${c.doc || '-'}</td>
-                        <td>${c.phone || '-'}</td>
-                        <td>${c.address || '-'}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditClientModal(${index})" title="Editar Cliente">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${index})" title="Eliminar Cliente">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function deleteClient(index) {
-            if (confirm('¿Estás seguro de eliminar este cliente de la base de datos?')) {
-                const deleted = clients.splice(index, 1)[0];
-                localStorage.setItem('bigott_clients', JSON.stringify(clients));
-                renderAdminClients();
-                logActivity('Eliminación de Cliente', deleted.name, `Cliente eliminado (${deleted.code})`);
-            }
-        }
-
-        function renderAdminOrders() {
-            const tbody = document.getElementById('adminOrdersBody');
-            if (pendingOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay pedidos pendientes</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = '';
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 887.30;
-
-            pendingOrders.forEach((o, index) => {
-                const totalUSD = parseFloat(o.totalUSD) || 0;
-                const paidUSD = parseFloat(o.paidUSD) || 0;
-                const pendingUSD = Math.max(0, totalUSD - paidUSD);
-                const pendingBS = pendingUSD * bcv;
-
-                let paymentBadge = `<span class="badge bg-danger">Sin Abono</span>`;
-                if (paidUSD >= totalUSD && totalUSD > 0) {
-                    paymentBadge = `<span class="badge bg-success">Pagado Completo</span>`;
-                } else if (paidUSD > 0) {
-                    paymentBadge = `<span class="badge bg-warning text-dark">Abonado</span>`;
-                }
-
-                let itemsSummaryText = '';
-                if (Array.isArray(o.items)) {
-                    itemsSummaryText = o.items.map(i => `${i.qty}x ${i.name}`).join(', ');
-                } else {
-                    itemsSummaryText = o.items || 'Sin detalle';
-                }
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="small text-muted">${o.date}</td>
-                        <td class="fw-bold text-danger">${o.invoiceNum || 'FAC-0001'}</td>
-                        <td><span class="fw-bold text-primary">${o.code}</span> - ${o.client}</td>
-                        <td>${itemsSummaryText}</td>
-                        <td class="fw-bold">$${totalUSD.toFixed(2)}</td>
-                        <td class="text-success fw-bold">$${paidUSD.toFixed(2)}</td>
-                        <td>
-                            <div class="fw-bold text-danger">$${pendingUSD.toFixed(2)}</div>
-                            <div class="small text-muted">${pendingBS.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs</div>
-                            ${paymentBadge}
-                        </td>
-                        <td class="text-center">
-                            <div class="btn-group-vertical btn-group-sm">
-                                <div class="btn-group btn-group-sm mb-1">
-                                    <button class="btn btn-success" onclick="resendOrderWhatsApp(${index}, 'entrega')" title="Reenviar Nota Entrega WA">
-                                        <i class="bi bi-whatsapp"></i> Ent.
-                                    </button>
-                                    <button class="btn btn-outline-success" onclick="resendOrderWhatsApp(${index}, 'pedido')" title="Reenviar Nota Pedido WA">
-                                        <i class="bi bi-whatsapp"></i> Ped.
-                                    </button>
-                                </div>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-success fw-bold" onclick="completeOrder(${index})" title="Despachar">
-                                        <i class="bi bi-check-circle"></i>
-                                    </button>
-                                    <button class="btn btn-outline-primary" onclick="openEditOrderModal(${index})" title="Gestionar / Modificar">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="btn btn-outline-danger" onclick="deleteOrder(${index})" title="Eliminar">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function openEditOrderModal(index) {
-            const o = pendingOrders[index];
-            document.getElementById('editOrderIndex').value = index;
-            document.getElementById('editOrderClientInfo').value = `${o.invoiceNum || 'FAC-0001'} | ${o.code} - ${o.client}`;
-            
-            if (!Array.isArray(o.items)) {
-                o.items = [{ name: o.items, qty: 1, subtotal: parseFloat(o.totalUSD) || 0 }];
-            }
-
-            renderEditOrderItemsTable(index);
-            
-            document.getElementById('editOrderPaid').value = (o.paidUSD !== undefined ? o.paidUSD : 0).toFixed(2);
-            document.getElementById('editOrderNewPaid').value = '';
-
-            calculatePendingBalance();
-
-            const editModal = new bootstrap.Modal(document.getElementById('editOrderModal'));
-            editModal.show();
-        }
-
-        function renderEditOrderItemsTable(orderIndex) {
-            const o = pendingOrders[orderIndex];
-            const tbody = document.getElementById('editOrderItemsTable');
-            tbody.innerHTML = '';
-
-            let currentTotal = 0;
-            o.items.forEach((item, itemIndex) => {
-                currentTotal += parseFloat(item.subtotal) || 0;
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td class="text-center fw-bold">${item.qty}</td>
-                        <td class="text-end fw-bold">$${(parseFloat(item.subtotal) || 0).toFixed(2)}</td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1" onclick="removeOrderItem(${orderIndex}, ${itemIndex})" title="Eliminar producto">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            o.totalUSD = currentTotal.toFixed(2);
-            document.getElementById('editOrderUSD').value = o.totalUSD;
-            calculatePendingBalance();
-        }
-
-        function removeOrderItem(orderIndex, itemIndex) {
-            const o = pendingOrders[orderIndex];
-            if (o.items.length <= 1) {
-                alert('El pedido debe tener al menos un producto. Si deseas eliminar el pedido completo, usa el botón "Eliminar".');
-                return;
-            }
-            o.items.splice(itemIndex, 1);
-            renderEditOrderItemsTable(orderIndex);
-        }
-
-        function calculatePendingBalance() {
-            const total = parseFloat(document.getElementById('editOrderUSD').value) || 0;
-            const previousPaid = parseFloat(document.getElementById('editOrderPaid').value) || 0;
-            const newAbn = parseFloat(document.getElementById('editOrderNewPaid').value) || 0;
-            
-            const totalPaid = previousPaid + newAbn;
-            const pending = Math.max(0, total - totalPaid);
-            
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 887.30;
-            const pendingBS = pending * bcv;
-
-            document.getElementById('editOrderPendingUSD').value = `$${pending.toFixed(2)}`;
-            document.getElementById('editOrderPendingBS').value = `${pendingBS.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`;
-        }
-
-        function saveOrderEditsFromModal() {
-            const index = document.getElementById('editOrderIndex').value;
-            if (index !== "" && pendingOrders[index]) {
-                const o = pendingOrders[index];
-                const previousPaid = parseFloat(o.paidUSD) || 0;
-                const newAbn = parseFloat(document.getElementById('editOrderNewPaid').value) || 0;
-                
-                o.paidUSD = previousPaid + newAbn;
-                
-                const bcv = parseFloat(document.getElementById('bcvRate').value) || 887.30;
-                o.totalBS = (parseFloat(o.totalUSD) * bcv).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
-                renderAdminOrders();
-
-                let detalleMovimiento = `Factura ${o.invoiceNum || ''} actualizada. Total: $${o.totalUSD}`;
-                if (newAbn > 0) {
-                    detalleMovimiento = `Abono registrado: $${newAbn.toFixed(2)} (Factura ${o.invoiceNum || ''}). Total Pedido: $${o.totalUSD}, Abonado Total: $${o.paidUSD.toFixed(2)}`;
-                } else {
-                    detalleMovimiento = `Pedido/Factura ${o.invoiceNum || ''} modificado/actualizado. Total: $${o.totalUSD}, Abonado Total: $${o.paidUSD.toFixed(2)}`;
-                }
-                
-                logActivity('Modificación de Pedido', o.client, detalleMovimiento);
-
-                const modalEl = document.getElementById('editOrderModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                modalInstance.hide();
-                alert('¡Pedido y abonos actualizados con éxito!');
-            }
-        }
-
-        function deleteOrderFromModal() {
-            const index = document.getElementById('editOrderIndex').value;
-            if (index !== "" && confirm('¿Estás seguro de eliminar este pedido pendiente?')) {
-                const o = pendingOrders.splice(index, 1)[0];
-                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
-                renderAdminOrders();
-
-                logActivity('Eliminación de Pedido', o.client, `Pedido/Factura ${o.invoiceNum || ''} eliminado (${o.code} - $${o.totalUSD})`);
-
-                const modalEl = document.getElementById('editOrderModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                modalInstance.hide();
-            }
-        }
-
-        function deleteOrder(index) {
-            if (confirm('¿Estás seguro de eliminar este pedido pendiente?')) {
-                const o = pendingOrders.splice(index, 1)[0];
-                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
-                renderAdminOrders();
-
-                logActivity('Eliminación de Pedido', o.client, `Pedido/Factura ${o.invoiceNum || ''} eliminado (${o.code} - $${o.totalUSD})`);
-            }
-        }
-
-        function completeOrder(index) {
-            if (confirm('¿Marcar este pedido como despachado y retirarlo de pendientes?')) {
-                const o = pendingOrders.splice(index, 1)[0];
-                
-                if (Array.isArray(o.items)) {
-                    o.items = o.items.map(i => `${i.qty}x ${i.name}`).join(', ');
-                }
-
-                if(!o.totalProfit) {
-                    o.totalProfit = (parseFloat(o.totalUSD) * 0.20).toFixed(2);
-                }
-                
-                completedOrders.push(o);
-                localStorage.setItem('bigott_completed_orders', JSON.stringify(completedOrders));
-                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
-                
-                renderAdminOrders();
-                updateStatistics();
-
-                logActivity('Despacho Exitoso', o.client, `Factura ${o.invoiceNum || ''} despachada (${o.code} - $${o.totalUSD})`);
-                alert('¡Pedido marcado como despachado con éxito y registrado en estadísticas!');
-            }
-        }
-
-        function updateStatistics() {
-            const filter = document.querySelector('input[name="statFilter"]:checked').value;
-            const now = new Date();
-            
-            let filteredOrders = completedOrders.filter(o => {
-                if (!o.rawDate) return true;
-                const orderDate = new Date(o.rawDate);
-                
-                if (filter === 'day') {
-                    return orderDate.toDateString() === now.toDateString();
-                } else if (filter === 'week') {
-                    const oneWeekAgo = new Date();
-                    oneWeekAgo.setDate(now.getDate() - 7);
-                    return orderDate >= oneWeekAgo;
-                } else if (filter === 'month') {
-                    return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
-                } else if (filter === 'year') {
-                    return orderDate.getFullYear() === now.getFullYear();
-                }
-                return true;
-            });
-
-            let totalSales = 0;
-            let totalProfit = 0;
-            const tbody = document.getElementById('statOrdersBody');
-            tbody.innerHTML = '';
-
-            if (filteredOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay despachos registrados para este periodo</td></tr>`;
-            } else {
-                filteredOrders.forEach(o => {
-                    const sales = parseFloat(o.totalUSD) || 0;
-                    const profit = parseFloat(o.totalProfit) || (sales * 0.20);
-                    totalSales += sales;
-                    totalProfit += profit;
-
-                    let itemsText = Array.isArray(o.items) ? o.items.map(i => `${i.qty}x ${i.name}`).join(', ') : (o.items || '');
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="small text-muted">${o.date}</td>
-                            <td class="fw-bold text-danger">${o.invoiceNum || 'FAC-0001'}</td>
-                            <td class="fw-bold">${o.client}</td>
-                            <td>${itemsText}</td>
-                            <td class="fw-bold text-primary">$${sales.toFixed(2)}</td>
-                            <td class="fw-bold text-success">$${profit.toFixed(2)}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            document.getElementById('statTotalSales').innerText = `$${totalSales.toFixed(2)}`;
-            document.getElementById('statTotalProfit').innerText = `$${totalProfit.toFixed(2)}`;
-            document.getElementById('statTotalOrders').innerText = filteredOrders.length;
-        }
-
-        function renderAdminHistory() {
-            const tbody = document.getElementById('adminHistoryBody');
-            if (activityHistory.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">No hay movimientos registrados</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = '';
-            activityHistory.forEach(h => {
-                let badgeClass = 'bg-secondary';
-                if(h.type.includes('Pedido')) badgeClass = 'bg-primary';
-                if(h.type.includes('Despacho')) badgeClass = 'bg-success';
-                if(h.type.includes('Modificación')) badgeClass = 'bg-warning text-dark';
-                if(h.type.includes('Eliminación')) badgeClass = 'bg-danger';
-                if(h.type.includes('Creación')) badgeClass = 'bg-info text-dark';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="small text-muted">${h.date}</td>
-                        <td><span class="badge ${badgeClass}">${h.type}</span></td>
-                        <td class="fw-bold">${h.client}</td>
-                        <td>${h.details}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function clearHistory() {
-            if (confirm('¿Estás seguro de vaciar todo el historial de movimientos?')) {
-                activityHistory = [];
-                localStorage.setItem('bigott_history', JSON.stringify(activityHistory));
-                renderAdminHistory();
-            }
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
         }
     </script>
 </body>
