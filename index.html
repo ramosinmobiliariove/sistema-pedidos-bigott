@@ -46,8 +46,8 @@
         }
 
         .product-img {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             object-fit: contain;
             border-radius: 6px;
             background: #fff;
@@ -379,27 +379,27 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light">
-                    <!-- Este es el contenedor que se convertirá en foto exacta -->
-                    <div class="card p-4 shadow-sm bg-white" id="catalogPrintableArea">
+                    <!-- Contenedor optimizado y ancho fijo para que la captura salga completa sin cortar columnas -->
+                    <div class="p-4 shadow-sm bg-white mx-auto" id="catalogPrintableArea" style="width: 100%; max-width: 750px;">
                         <div class="text-center border-bottom pb-3 mb-3">
-                            <h4 class="fw-bold text-uppercase" style="color: #002B49;">BIGOTT</h4>
-                            <small class="text-muted fw-bold">A BETTER TOMORROW</small>
+                            <h4 class="fw-bold text-uppercase mb-1" style="color: #002B49; letter-spacing: 1px;">BIGOTT</h4>
+                            <small class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 2px;">A BETTER TOMORROW</small>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-bordered align-middle small text-center">
+                            <table class="table table-bordered align-middle text-center mb-2" style="font-size: 0.8rem;">
                                 <thead class="table-secondary">
                                     <tr>
-                                        <th class="text-start">PRODUCTO</th>
-                                        <th>PRECIO VENTA POR BRAZO $</th>
-                                        <th>PRECIO COSTO CAJETILLA</th>
-                                        <th>PRECIO SUGERIDO DE VENTA AL CONSUMIDOR</th>
+                                        <th class="text-start" style="width: 28%;">PRODUCTO</th>
+                                        <th style="width: 24%;">PRECIO VENTA POR BRAZO ($)</th>
+                                        <th style="width: 24%;">PRECIO COSTO CAJETILLA ($)</th>
+                                        <th style="width: 24%;">PRECIO SUGERIDO DE VENTA AL CONSUMIDOR ($)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="catalogTableBody"></tbody>
                             </table>
                         </div>
                         <div class="text-start mt-2">
-                            <span class="text-danger fw-bold" style="font-size: 0.8rem;">Pago a la tasa del día BCV</span>
+                            <span class="text-danger fw-bold" style="font-size: 0.75rem;">Pago a la tasa del día BCV</span>
                         </div>
                     </div>
                 </div>
@@ -916,17 +916,17 @@
             window.print();
         }
 
-        // Función para descargar la imagen del catálogo y abrir WhatsApp
+        // Función para descargar la imagen completa del catálogo y abrir WhatsApp
         function downloadCatalogImage() {
             const catalogElement = document.getElementById('catalogPrintableArea');
-            html2canvas(catalogElement, { scale: 2 }).then(canvas => {
+            html2canvas(catalogElement, { scale: 2, useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'Catalogo_Bigott_Edwin_Ramos.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                alert('¡Imagen del catálogo descargada con éxito en tu dispositivo!\n\nA continuación se abrirá WhatsApp para que envíes o adjuntes la foto.');
-                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios y tasa BCV del día.'), '_blank');
+                alert('¡Imagen del catálogo descargada con éxito en tu dispositivo con todas sus columnas visibles!\n\nA continuación se abrirá WhatsApp para que adjuntes la foto.');
+                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios y sugeridos.'), '_blank');
             });
         }
 
@@ -939,11 +939,11 @@
                         <td class="text-start fw-bold">
                             <div class="d-flex align-items-center">
                                 <img src="${p.img}" class="product-img me-2">
-                                <span>${p.name}</span>
+                                <span style="font-size: 0.75rem;">${p.name}</span>
                             </div>
                         </td>
                         <td class="fw-bold text-primary">$${p.price.toFixed(2)}</td>
-                        <td>$${(p.packCost || 0).toFixed(2)}</td>
+                        <td class="text-muted">$${(p.packCost || 0).toFixed(2)}</td>
                         <td class="fw-bold text-success">$${(p.suggestedPrice || 0).toFixed(2)}</td>
                     </tr>
                 `;
