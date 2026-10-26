@@ -6,6 +6,8 @@
     <title>Emprendimiento Edwin Ramos 3 - Sistema de Pedidos Bigott</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Librería para capturar la tabla como imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary-blue: #002B49;
@@ -377,36 +379,33 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light">
-                    <div class="card p-4 shadow-sm" id="catalogPrintableArea">
+                    <!-- Este es el contenedor que se convertirá en foto exacta -->
+                    <div class="card p-4 shadow-sm bg-white" id="catalogPrintableArea">
                         <div class="text-center border-bottom pb-3 mb-3">
                             <h4 class="fw-bold text-uppercase" style="color: #002B49;">BIGOTT</h4>
                             <small class="text-muted fw-bold">A BETTER TOMORROW</small>
-                            <h5 class="fw-bold text-primary mt-2">LISTA DE PRECIOS Y SUGERIDOS</h5>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle small text-center">
                                 <thead class="table-secondary">
                                     <tr>
                                         <th class="text-start">PRODUCTO</th>
-                                        <th>PRECIO VENTA POR BRAZO ($)</th>
-                                        <th>PRECIO COSTO CAJETILLA ($)</th>
-                                        <th>PRECIO SUGERIDO DE VENTA AL CONSUMIDOR ($)</th>
+                                        <th>PRECIO VENTA POR BRAZO $</th>
+                                        <th>PRECIO COSTO CAJETILLA</th>
+                                        <th>PRECIO SUGERIDO DE VENTA AL CONSUMIDOR</th>
                                     </tr>
                                 </thead>
                                 <tbody id="catalogTableBody"></tbody>
                             </table>
                         </div>
-                        <div class="text-danger fw-bold small mt-2">
-                            Pago a la tasa del día BCV
+                        <div class="text-start mt-2">
+                            <span class="text-danger fw-bold" style="font-size: 0.8rem;">Pago a la tasa del día BCV</span>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success fw-bold" onclick="sendCatalogWhatsApp()">
-                        <i class="bi bi-whatsapp me-1"></i> Enviar Catálogo WA
-                    </button>
-                    <button type="button" class="btn btn-outline-success fw-bold" onclick="copyCatalogText()">
-                        <i class="bi bi-clipboard me-1"></i> Copiar Catálogo
+                    <button type="button" class="btn btn-success fw-bold" onclick="downloadCatalogImage()">
+                        <i class="bi bi-camera-fill me-1"></i> 📸 Descargar e Ir a WhatsApp
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -917,26 +916,18 @@
             window.print();
         }
 
-        function generateCatalogText() {
-            let text = `📦 *BIGOTT - A BETTER TOMORROW* 📦\n*LISTA DE PRECIOS Y SUGERIDOS*\n\n`;
-            products.forEach(p => {
-                text += `• *${p.name}*\n`;
-                text += `   - Venta Brazo: *$${p.price.toFixed(2)}*\n`;
-                text += `   - Costo Cajetilla: *$${(p.packCost || 0).toFixed(2)}*\n`;
-                text += `   - Sugerido Consumidor: *$${(p.suggestedPrice || 0).toFixed(2)}*\n\n`;
+        // Función para descargar la imagen del catálogo y abrir WhatsApp
+        function downloadCatalogImage() {
+            const catalogElement = document.getElementById('catalogPrintableArea');
+            html2canvas(catalogElement, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Catalogo_Bigott_Edwin_Ramos.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                alert('¡Imagen del catálogo descargada con éxito en tu dispositivo!\n\nA continuación se abrirá WhatsApp para que envíes o adjuntes la foto.');
+                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios y tasa BCV del día.'), '_blank');
             });
-            text += `_Pago a la tasa del día BCV_`;
-            return text;
-        }
-
-        function copyCatalogText() {
-            const text = generateCatalogText();
-            navigator.clipboard.writeText(text).then(() => alert('¡Catálogo copiado con éxito al portapapeles!'));
-        }
-
-        function sendCatalogWhatsApp() {
-            const text = generateCatalogText();
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
         }
 
         function renderCatalogTable() {
