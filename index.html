@@ -46,8 +46,8 @@
         }
 
         .product-img {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             object-fit: contain;
             border-radius: 6px;
             background: #fff;
@@ -372,40 +372,40 @@
 
     <!-- MODAL DE CATÁLOGO COMPARTIBLE -->
     <div class="modal fade" id="catalogModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 820px;">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text-fill me-2"></i> Catálogo Oficial Bigott</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body bg-light">
-                    <!-- Contenedor optimizado y ancho fijo para que la captura salga completa sin cortar columnas -->
-                    <div class="p-4 shadow-sm bg-white mx-auto" id="catalogPrintableArea" style="width: 100%; max-width: 750px;">
-                        <div class="text-center border-bottom pb-3 mb-3">
-                            <h4 class="fw-bold text-uppercase mb-1" style="color: #002B49; letter-spacing: 1px;">BIGOTT</h4>
-                            <small class="text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 2px;">A BETTER TOMORROW</small>
+                <div class="modal-body bg-light p-2 p-md-4">
+                    <!-- Contenedor con ancho fijo garantizado para que ninguna columna se corte -->
+                    <div class="p-3 shadow-sm bg-white mx-auto" id="catalogPrintableArea" style="width: 100%; max-width: 780px;">
+                        <div class="text-center border-bottom pb-2 mb-2">
+                            <h4 class="fw-bold text-uppercase mb-0" style="color: #002B49; letter-spacing: 1px; font-size: 1.3rem;">BIGOTT</h4>
+                            <small class="text-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 2px;">A BETTER TOMORROW</small>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-bordered align-middle text-center mb-2" style="font-size: 0.8rem;">
+                            <table class="table table-bordered align-middle text-center mb-1" style="font-size: 0.73rem;">
                                 <thead class="table-secondary">
                                     <tr>
-                                        <th class="text-start" style="width: 28%;">PRODUCTO</th>
-                                        <th style="width: 24%;">PRECIO VENTA POR BRAZO ($)</th>
-                                        <th style="width: 24%;">PRECIO COSTO CAJETILLA ($)</th>
-                                        <th style="width: 24%;">PRECIO SUGERIDO DE VENTA AL CONSUMIDOR ($)</th>
+                                        <th class="text-start" style="width: 28%; padding: 6px;">PRODUCTO</th>
+                                        <th style="width: 24%; padding: 6px;">PRECIO VENTA POR BRAZO ($)</th>
+                                        <th style="width: 24%; padding: 6px;">PRECIO COSTO CAJETILLA ($)</th>
+                                        <th style="width: 24%; padding: 6px;">PRECIO SUGERIDO DE VENTA AL CONSUMIDOR ($)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="catalogTableBody"></tbody>
                             </table>
                         </div>
                         <div class="text-start mt-2">
-                            <span class="text-danger fw-bold" style="font-size: 0.75rem;">Pago a la tasa del día BCV</span>
+                            <span class="text-danger fw-bold" style="font-size: 0.72rem;">Pago a la tasa del día BCV</span>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success fw-bold" onclick="downloadCatalogImage()">
-                        <i class="bi bi-camera-fill me-1"></i> 📸 Descargar e Ir a WhatsApp
+                        <i class="bi bi-camera-fill me-1"></i> 📸 Descargar Foto y Abrir WhatsApp
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
@@ -916,17 +916,17 @@
             window.print();
         }
 
-        // Función para descargar la imagen completa del catálogo y abrir WhatsApp
+        // Función para descargar la imagen completa del catálogo garantizando que no se corte ninguna columna
         function downloadCatalogImage() {
             const catalogElement = document.getElementById('catalogPrintableArea');
-            html2canvas(catalogElement, { scale: 2, useCORS: true }).then(canvas => {
+            html2canvas(catalogElement, { scale: 3, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'Catalogo_Bigott_Edwin_Ramos.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                alert('¡Imagen del catálogo descargada con éxito en tu dispositivo con todas sus columnas visibles!\n\nA continuación se abrirá WhatsApp para que adjuntes la foto.');
-                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios y sugeridos.'), '_blank');
+                alert('¡Imagen del catálogo descargada con éxito en alta definición y con todas sus columnas visibles!\n\nA continuación se abrirá WhatsApp para que adjuntes la foto.');
+                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios y sugeridos al consumidor.'), '_blank');
             });
         }
 
@@ -936,15 +936,15 @@
             products.forEach(p => {
                 tbody.innerHTML += `
                     <tr>
-                        <td class="text-start fw-bold">
+                        <td class="text-start fw-bold" style="padding: 5px;">
                             <div class="d-flex align-items-center">
-                                <img src="${p.img}" class="product-img me-2">
-                                <span style="font-size: 0.75rem;">${p.name}</span>
+                                <img src="${p.img}" class="product-img me-1">
+                                <span style="font-size: 0.7rem; white-space: nowrap;">${p.name}</span>
                             </div>
                         </td>
-                        <td class="fw-bold text-primary">$${p.price.toFixed(2)}</td>
-                        <td class="text-muted">$${(p.packCost || 0).toFixed(2)}</td>
-                        <td class="fw-bold text-success">$${(p.suggestedPrice || 0).toFixed(2)}</td>
+                        <td class="fw-bold text-primary" style="padding: 5px; font-size: 0.75rem;">$${p.price.toFixed(2)}</td>
+                        <td class="text-muted" style="padding: 5px; font-size: 0.75rem;">$${(p.packCost || 0).toFixed(2)}</td>
+                        <td class="fw-bold text-success" style="padding: 5px; font-size: 0.75rem;">$${(p.suggestedPrice || 0).toFixed(2)}</td>
                     </tr>
                 `;
             });
