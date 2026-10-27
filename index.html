@@ -6,7 +6,6 @@
     <title>Emprendimiento Edwin Ramos 3 - Sistema de Pedidos Bigott</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <!-- Librería para capturar la tabla como imagen -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
@@ -132,15 +131,13 @@
                 left: 0;
                 top: 0;
                 width: 100%;
-                padding: 0;
+                padding: 10px;
                 margin: 0;
+                border: none !important;
+                box-shadow: none !important;
             }
             .no-print {
                 display: none !important;
-            }
-            .card {
-                box-shadow: none !important;
-                border: none !important;
             }
         }
     </style>
@@ -233,7 +230,7 @@
 
                             <div class="col-12">
                                 <label class="form-label fw-bold small">Dirección de Entrega</label>
-                                <input type="text" id="clientAddress" class="form-control" placeholder="Dirección del local o abasto">
+                                <input type="text" id="clientAddress" class="form-control" placeholder="Dirección del local o abasto" oninput="updateCalculations()">
                             </div>
                         </div>
                     </div>
@@ -307,7 +304,8 @@
                                         <strong>Factura N°:</strong> <span id="dnInvoiceNum" class="text-danger fw-bold">FAC-0001</span><br>
                                         <strong>Cliente:</strong> <span id="dnClientName">-</span><br>
                                         <strong>Cédula/RIF:</strong> <span id="dnClientDoc">-</span><br>
-                                        <strong>Teléfono:</strong> <span id="dnClientPhone">-</span>
+                                        <strong>Teléfono:</strong> <span id="dnClientPhone">-</span><br>
+                                        <strong>Dirección:</strong> <span id="dnClientAddress">-</span>
                                     </div>
                                     <div class="text-end">
                                         <strong>Fecha:</strong> <span id="dnDate">--/--/----</span>
@@ -379,7 +377,6 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light p-2 p-md-4">
-                    <!-- Contenedor con ancho fijo garantizado para que ninguna columna se corte -->
                     <div class="p-3 shadow-sm bg-white mx-auto" id="catalogPrintableArea" style="width: 100%; max-width: 780px;">
                         <div class="text-center border-bottom pb-2 mb-2">
                             <h4 class="fw-bold text-uppercase mb-0" style="color: #002B49; letter-spacing: 1px; font-size: 1.3rem;">BIGOTT</h4>
@@ -389,10 +386,10 @@
                             <table class="table table-bordered align-middle text-center mb-1" style="font-size: 0.73rem;">
                                 <thead class="table-secondary">
                                     <tr>
-                                        <th class="text-start" style="width: 28%; padding: 6px;">PRODUCTO</th>
-                                        <th style="width: 24%; padding: 6px;">PRECIO VENTA POR BRAZO ($)</th>
-                                        <th style="width: 24%; padding: 6px;">PRECIO COSTO CAJETILLA ($)</th>
-                                        <th style="width: 24%; padding: 6px;">PRECIO SUGERIDO DE VENTA AL CONSUMIDOR ($)</th>
+                                        <th class="text-start" style="width: 32%; padding: 6px;">PRODUCTO</th>
+                                        <th style="width: 23%; padding: 6px;">PRECIO VENTA POR BRAZO ($)</th>
+                                        <th style="width: 22%; padding: 6px;">PRECIO COSTO CAJETILLA ($)</th>
+                                        <th style="width: 23%; padding: 6px;">PRECIO SUGERIDO DE VENTA AL CONSUMIDOR ($)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="catalogTableBody"></tbody>
@@ -413,16 +410,17 @@
         </div>
     </div>
 
-    <!-- MODAL CLIENTE NUEVO -->
+    <!-- MODAL CLIENTE NUEVO / EDITAR -->
     <div class="modal fade" id="quickClientModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-person-plus-fill me-2"></i> Crear Nuevo Cliente</h5>
+                <div class="modal-header bg-success text-white" id="modalClientHeader">
+                    <h5 class="modal-title fw-bold" id="modalClientTitle"><i class="bi bi-person-plus-fill me-2"></i> Crear Nuevo Cliente</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="quickClientForm" onsubmit="saveQuickClient(event)">
+                        <input type="hidden" id="modalEditIndex" value="-1">
                         <div class="mb-2">
                             <label class="form-label small fw-bold">Código Asignado</label>
                             <input type="text" id="modalNewCode" class="form-control fw-bold text-primary bg-light" readonly>
@@ -443,7 +441,7 @@
                             <label class="form-label small fw-bold">Dirección</label>
                             <input type="text" id="modalNewAddress" class="form-control" placeholder="Dirección del local">
                         </div>
-                        <button type="submit" class="btn btn-success w-100 fw-bold">Guardar y Seleccionar</button>
+                        <button type="submit" class="btn btn-success w-100 fw-bold" id="modalClientBtn">Guardar y Seleccionar</button>
                     </form>
                 </div>
             </div>
@@ -497,7 +495,7 @@
                             <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
                                 <table class="table table-striped table-bordered small align-middle">
                                     <thead class="table-dark sticky-top">
-                                        <tr><th>Código</th><th>Cliente</th><th>Cédula / RIF</th><th>Teléfono</th><th>Dirección</th><th class="text-center" style="width: 120px;">Acciones</th></tr>
+                                        <tr><th>Código</th><th>Cliente</th><th>Cédula / RIF</th><th>Teléfono</th><th>Dirección</th><th class="text-center" style="width: 140px;">Acciones</th></tr>
                                     </thead>
                                     <tbody id="adminClientsBody"></tbody>
                                 </table>
@@ -531,7 +529,7 @@
                                         <tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Detalle</th></tr>
                                     </thead>
                                     <tbody id="adminHistoryBody">
-                                        <tr><td colspan="4" class="text-center text-muted py-3">No hay movimientos</td></tr>
+                                        <tr><td colspan="4" class="text-center text-muted py-3">Sin actividad</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -574,6 +572,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzwNXIl9w2m_k5MmG4ALIULFPoqaX5A7mnJbrkpygZ7r_sMZSEIWrdFZNxks_s4X8Sfw/exec";
+
         let defaultProducts = [
             { id: 'belmont_g', name: 'Belmont Grande', packCost: 2.75, margin: 19.39, price: 27.46, suggestedPrice: 3.04, img: 'belmont_grande.png' },
             { id: 'belmont_p', name: 'Belmont pequeño', packCost: 1.44, margin: 19.58, price: 14.35, suggestedPrice: 1.59, img: 'belmont_pequeno.png' },
@@ -741,7 +741,22 @@
             updateCalculations();
         }
 
+        function editOrder(index) {
+            const order = pendingOrders[index];
+            loadOrderToMainView(order);
+            const modalEl = document.getElementById('adminModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+            alert(`¡Factura ${order.invoiceNum} cargada para editar! Modifica lo que necesites y haz clic en Guardar.`);
+        }
+
         function openQuickNewClientModal() {
+            document.getElementById('modalEditIndex').value = "-1";
+            document.getElementById('modalClientHeader').className = "modal-header bg-success text-white";
+            document.getElementById('modalClientTitle').innerHTML = `<i class="bi bi-person-plus-fill me-2"></i> Crear Nuevo Cliente`;
+            document.getElementById('modalClientBtn').className = "btn btn-success w-100 fw-bold";
+            document.getElementById('modalClientBtn').innerText = "Guardar y Seleccionar";
+
             const nextCode = `COD-${String(clients.length + 1).padStart(3, '0')}`;
             document.getElementById('modalNewCode').value = nextCode;
             document.getElementById('modalNewName').value = '';
@@ -751,22 +766,53 @@
             new bootstrap.Modal(document.getElementById('quickClientModal')).show();
         }
 
+        function openEditClientModal(index) {
+            const c = clients[index];
+            document.getElementById('modalEditIndex').value = index;
+            document.getElementById('modalClientHeader').className = "modal-header bg-primary text-white";
+            document.getElementById('modalClientTitle').innerHTML = `<i class="bi bi-pencil-square me-2"></i> Editar Cliente (${c.code})`;
+            document.getElementById('modalClientBtn').className = "btn btn-primary w-100 fw-bold";
+            document.getElementById('modalClientBtn').innerText = "Guardar Cambios";
+
+            document.getElementById('modalNewCode').value = c.code;
+            document.getElementById('modalNewName').value = c.name;
+            document.getElementById('modalNewDoc').value = c.doc || '';
+            document.getElementById('modalNewPhone').value = c.phone || '';
+            document.getElementById('modalNewAddress').value = c.address || '';
+
+            const adminModalEl = document.getElementById('adminModal');
+            const adminInstance = bootstrap.Modal.getInstance(adminModalEl);
+            if (adminInstance) adminInstance.hide();
+
+            new bootstrap.Modal(document.getElementById('quickClientModal')).show();
+        }
+
         function saveQuickClient(e) {
             e.preventDefault();
-            const newC = {
+            const editIndex = parseInt(document.getElementById('modalEditIndex').value);
+            
+            const updatedClient = {
                 code: document.getElementById('modalNewCode').value,
                 name: document.getElementById('modalNewName').value,
                 doc: document.getElementById('modalNewDoc').value,
                 phone: document.getElementById('modalNewPhone').value,
                 address: document.getElementById('modalNewAddress').value
             };
-            clients.push(newC);
+
+            if (editIndex >= 0) {
+                clients[editIndex] = updatedClient;
+                logActivity('Edición de Cliente', updatedClient.name, `Datos actualizados (${updatedClient.code})`);
+                alert(`¡Cliente ${updatedClient.name} actualizado con éxito!`);
+            } else {
+                clients.push(updatedClient);
+                logActivity('Creación de Cliente', updatedClient.name, `Cliente registrado (${updatedClient.code})`);
+                alert(`¡Cliente ${updatedClient.name} creado con éxito!`);
+            }
+
             localStorage.setItem('bigott_clients', JSON.stringify(clients));
-            selectClient(newC);
+            selectClient(updatedClient);
             renderAdminClients();
-            logActivity('Creación de Cliente', newC.name, `Cliente registrado (${newC.code})`);
             bootstrap.Modal.getInstance(document.getElementById('quickClientModal')).hide();
-            alert(`¡Cliente ${newC.name} creado con éxito!`);
         }
 
         function renderProductTable() {
@@ -818,6 +864,7 @@
             document.getElementById('dnClientName').innerText = document.getElementById('clientName').value || 'Cliente';
             document.getElementById('dnClientDoc').innerText = document.getElementById('clientDoc').value || 'N/A';
             document.getElementById('dnClientPhone').innerText = document.getElementById('clientPhone').value || 'N/A';
+            document.getElementById('dnClientAddress').innerText = document.getElementById('clientAddress').value || 'N/A';
             document.getElementById('dnTotalUSD').innerText = `$${totalUSD.toFixed(2)}`;
             document.getElementById('dnTotalBS').innerText = `${totalBS.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs`;
 
@@ -839,13 +886,39 @@
             }
         }
 
-        function saveOrderManual() {
+        function enviarPedidoAGoogleSheets(orden) {
+            if (!GOOGLE_SCRIPT_URL) return;
+            
+            let productosStr = orden.items.map(i => `${i.qty}x ${i.name} ($${i.subtotal})`).join(', ');
+            let pendingUSD = (parseFloat(orden.totalUSD) - parseFloat(orden.paidUSD)).toFixed(2);
+
+            const params = new URLSearchParams({
+                date: orden.date,
+                invoiceNum: orden.invoiceNum,
+                code: orden.code,
+                client: orden.client,
+                items: productosStr,
+                totalUSD: orden.totalUSD,
+                paidUSD: orden.paidUSD,
+                pendingUSD: pendingUSD,
+                totalBS: orden.totalBS
+            });
+
+            fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
+                method: "GET",
+                mode: "no-cors"
+            })
+            .then(() => console.log("Sincronizado con Google Sheets con éxito."))
+            .catch(err => console.error("Error al sincronizar con Google Sheets:", err));
+        }
+
+        function saveOrderManual(clearAfter = true) {
             const code = document.getElementById('clientCode').value || 'COD-001';
             const invoiceNum = document.getElementById('invoiceNum').value || generateNextInvoiceNumber();
             const client = document.getElementById('clientName').value;
             if(!client || client.trim() === '') {
                 alert('Por favor ingresa o selecciona el nombre del cliente.');
-                return;
+                return false;
             }
 
             const bcv = parseFloat(document.getElementById('bcvRate').value) || 0;
@@ -861,13 +934,20 @@
                     const armCost = (p.packCost || 2) * 10;
                     const profitPerArm = armCost * ((p.margin || 20) / 100);
                     totalProfit += profitPerArm * qty;
-                    orderItems.push({ name: p.name, qty: qty, price: p.price, subtotal: sub });
+                    orderItems.push({ name: p.name, qty: qty, price: p.price, subtotal: sub.toFixed(2) });
                 }
             });
 
             if (totalUSD === 0) {
                 alert('Selecciona al menos un producto antes de guardar.');
-                return;
+                return false;
+            }
+
+            const existingIndex = pendingOrders.findIndex(o => o.invoiceNum === invoiceNum);
+            let paidUSD = "0.00";
+            if (existingIndex >= 0) {
+                paidUSD = pendingOrders[existingIndex].paidUSD || "0.00";
+                pendingOrders.splice(existingIndex, 1);
             }
 
             const now = new Date();
@@ -883,7 +963,7 @@
                 address: document.getElementById('clientAddress').value || '',
                 items: orderItems,
                 totalUSD: totalUSD.toFixed(2),
-                paidUSD: 0.00,
+                paidUSD: paidUSD,
                 totalProfit: totalProfit.toFixed(2),
                 totalBS: (totalUSD * bcv).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             };
@@ -891,13 +971,21 @@
             pendingOrders.push(newOrder);
             localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
 
-            lastInvoiceCounter++;
-            localStorage.setItem('bigott_invoice_counter', lastInvoiceCounter.toString());
+            enviarPedidoAGoogleSheets(newOrder);
+
+            if (existingIndex < 0) {
+                lastInvoiceCounter++;
+                localStorage.setItem('bigott_invoice_counter', lastInvoiceCounter.toString());
+            }
 
             renderAdminOrders();
-            logActivity('Creación de Pedido', client, `Factura ${invoiceNum} guardada por $${totalUSD.toFixed(2)}`);
-            alert(`¡Factura ${invoiceNum} guardada con éxito en pendientes!`);
-            clearClientFields();
+            logActivity('Creación / Actualización de Pedido', client, `Factura ${invoiceNum} guardada por $${totalUSD.toFixed(2)}`);
+
+            if (clearAfter) {
+                alert(`¡Factura ${invoiceNum} guardada con éxito y enviada a Google Sheets!`);
+                clearClientFields();
+            }
+            return true;
         }
 
         async function fetchBCVRate() {
@@ -912,21 +1000,53 @@
         }
 
         function saveAndPrint() {
-            saveOrderManual();
+            const client = document.getElementById('clientName').value;
+            if(!client || client.trim() === '') {
+                alert('Por favor ingresa o selecciona el nombre del cliente.');
+                return;
+            }
+
+            let totalUSD = 0;
+            products.forEach(p => {
+                totalUSD += (quantities[p.id] || 0) * p.price;
+            });
+
+            if (totalUSD === 0) {
+                alert('Selecciona al menos un producto antes de imprimir.');
+                return;
+            }
+
             window.print();
+
+            setTimeout(() => {
+                saveOrderManual(true);
+            }, 500);
         }
 
-        // Función para descargar la imagen completa del catálogo garantizando que no se corte ninguna columna
         function downloadCatalogImage() {
             const catalogElement = document.getElementById('catalogPrintableArea');
-            html2canvas(catalogElement, { scale: 3, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+            if (!catalogElement) {
+                alert('No se encontró el elemento del catálogo.');
+                return;
+            }
+
+            html2canvas(catalogElement, { 
+                scale: 3, 
+                useCORS: true, 
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                ignoreElements: (element) => element.tagName === 'IMG'
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'Catalogo_Bigott_Edwin_Ramos.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                alert('¡Imagen del catálogo descargada con éxito en alta definición y con todas sus columnas visibles!\n\nA continuación se abrirá WhatsApp para que adjuntes la foto.');
-                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios y sugeridos al consumidor.'), '_blank');
+                alert('¡Imagen del catálogo descargada con éxito en alta definición!\n\nA continuación se abrirá WhatsApp para que adjuntes la foto.');
+                window.open('https://wa.me/?text=' + encodeURIComponent('📦 *Catálogo Oficial Bigott* - Adjunto la imagen con la lista de precios por cajetilla, brazo y sugeridos al consumidor.'), '_blank');
+            }).catch(err => {
+                console.error("Error al generar la imagen:", err);
+                alert('Ocurrió un error al generar la imagen del catálogo. Inténtalo de nuevo.');
             });
         }
 
@@ -934,17 +1054,15 @@
             const tbody = document.getElementById('catalogTableBody');
             tbody.innerHTML = '';
             products.forEach(p => {
+                const packPriceFromArm = p.price / 10;
                 tbody.innerHTML += `
                     <tr>
-                        <td class="text-start fw-bold" style="padding: 5px;">
-                            <div class="d-flex align-items-center">
-                                <img src="${p.img}" class="product-img me-1">
-                                <span style="font-size: 0.7rem; white-space: nowrap;">${p.name}</span>
-                            </div>
+                        <td class="text-start fw-bold" style="padding: 6px;">
+                            <span>${p.name}</span>
                         </td>
-                        <td class="fw-bold text-primary" style="padding: 5px; font-size: 0.75rem;">$${p.price.toFixed(2)}</td>
-                        <td class="text-muted" style="padding: 5px; font-size: 0.75rem;">$${(p.packCost || 0).toFixed(2)}</td>
-                        <td class="fw-bold text-success" style="padding: 5px; font-size: 0.75rem;">$${(p.suggestedPrice || 0).toFixed(2)}</td>
+                        <td class="fw-bold text-primary" style="padding: 6px; font-size: 0.75rem;">$${p.price.toFixed(2)}</td>
+                        <td class="fw-semibold text-secondary" style="padding: 6px; font-size: 0.75rem;">$${packPriceFromArm.toFixed(2)}</td>
+                        <td class="fw-bold text-success" style="padding: 6px; font-size: 0.75rem;">$${(p.suggestedPrice || 0).toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -1085,10 +1203,26 @@
 
         function renderAdminClients() {
             const tbody = document.getElementById('adminClientsBody');
-            if (clients.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No hay clientes</td></tr>`; return; }
+            if (clients.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay clientes guardados</td></tr>`; return; }
             tbody.innerHTML = '';
             clients.forEach((c, index) => {
-                tbody.innerHTML += `<tr><td class="fw-bold text-primary">${c.code}</td><td>${c.name}</td><td>${c.doc || '-'}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td class="text-center"><button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${index})"><i class="bi bi-trash"></i></button></td></tr>`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-primary">${c.code}</td>
+                        <td>${c.name}</td>
+                        <td>${c.doc || '-'}</td>
+                        <td>${c.phone || '-'}</td>
+                        <td>${c.address || '-'}</td>
+                        <td class="text-center text-nowrap">
+                            <button class="btn btn-sm btn-primary fw-bold me-1" onclick="openEditClientModal(${index})" title="Editar Cliente">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${index})" title="Eliminar Cliente">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
             });
         }
 
@@ -1102,9 +1236,8 @@
 
         function renderAdminOrders() {
             const tbody = document.getElementById('adminOrdersBody');
-            if (pendingOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No hay pedidos pendientes</td></tr>`; return; }
+            if (pendingOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">No hay pedidos pendientes</td></tr>`; return; }
             tbody.innerHTML = '';
-            const bcv = parseFloat(document.getElementById('bcvRate').value) || 887.30;
 
             pendingOrders.forEach((o, index) => {
                 const totalUSD = parseFloat(o.totalUSD) || 0;
@@ -1121,13 +1254,43 @@
                         <td class="fw-bold">$${totalUSD.toFixed(2)}</td>
                         <td class="text-success">$${paidUSD.toFixed(2)}</td>
                         <td class="fw-bold text-danger">$${pendingUSD.toFixed(2)}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-success fw-bold" onclick="completeOrder(${index})" title="Despachar"><i class="bi bi-check-circle"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${index})"><i class="bi bi-trash"></i></button>
+                        <td class="text-center text-nowrap">
+                            <button class="btn btn-sm btn-warning fw-bold me-1" onclick="addPaymentToOrder(${index})" title="Registrar Abono ($)"><i class="bi bi-cash-coin"></i></button>
+                            <button class="btn btn-sm btn-primary fw-bold me-1" onclick="editOrder(${index})" title="Modificar / Cargar Pedido"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-success fw-bold me-1" onclick="completeOrder(${index})" title="Despachar"><i class="bi bi-check-circle"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteOrder(${index})" title="Eliminar"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
+        }
+
+        function addPaymentToOrder(index) {
+            const o = pendingOrders[index];
+            const totalUSD = parseFloat(o.totalUSD) || 0;
+            const currentPaid = parseFloat(o.paidUSD) || 0;
+            const currentPending = Math.max(0, totalUSD - currentPaid);
+
+            const amountStr = prompt(`Factura: ${o.invoiceNum}\nTotal: $${totalUSD.toFixed(2)} | Pendiente: $${currentPending.toFixed(2)}\n\nIngresa el monto del abono en USD ($):`, currentPending.toFixed(2));
+            if (!amountStr) return;
+
+            const amount = parseFloat(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                alert('Monto inválido.');
+                return;
+            }
+
+            const newPaid = currentPaid + amount;
+            if (newPaid > totalUSD) {
+                alert('El abono no puede ser mayor que el total pendiente de la factura.');
+                return;
+            }
+
+            pendingOrders[index].paidUSD = newPaid.toFixed(2);
+            localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
+            renderAdminOrders();
+            logActivity('Abono a Pedido', o.client, `Abono de $${amount.toFixed(2)} a factura ${o.invoiceNum}`);
+            alert(`¡Abono registrado con éxito! Pendiente restante: $${(totalUSD - newPaid).toFixed(2)}`);
         }
 
         function deleteOrder(index) {
@@ -1167,7 +1330,7 @@
             let totalSales = 0, totalProfit = 0;
             const tbody = document.getElementById('statOrdersBody');
             tbody.innerHTML = '';
-            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No hay registros</td></tr>`; }
+            if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No hay registros</td></tr>`; }
             else {
                 filtered.forEach(o => {
                     totalSales += parseFloat(o.totalUSD) || 0;
@@ -1182,7 +1345,7 @@
 
         function renderAdminHistory() {
             const tbody = document.getElementById('adminHistoryBody');
-            if (activityHistory.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Sin actividad</td></tr>`; return; }
+            if (activityHistory.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">Sin actividad</td></tr>`; return; }
             tbody.innerHTML = '';
             activityHistory.forEach(h => {
                 tbody.innerHTML += `<tr><td class="small text-muted">${h.date}</td><td><span class="badge bg-secondary">${h.type}</span></td><td class="fw-bold">${h.client}</td><td>${h.details}</td></tr>`;
