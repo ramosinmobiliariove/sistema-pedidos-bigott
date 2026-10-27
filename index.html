@@ -840,24 +840,45 @@
         }
 
         function loadOrderToMainView(order) {
-            document.getElementById('clientCode').value = order.code || 'COD-001';
-            document.getElementById('invoiceNum').value = order.invoiceNum || 'FAC-0001';
-            document.getElementById('clientName').value = order.client || '';
-            document.getElementById('clientDoc').value = order.doc || '';
-            document.getElementById('clientPhone').value = order.phone || '';
-            document.getElementById('clientAddress').value = order.address || '';
+            if (!order) return;
 
-            products.forEach(p => quantities[p.id] = 0);
-            if (Array.isArray(order.items)) {
-                order.items.forEach(item => {
-                    const prod = products.find(p => p.name.toLowerCase() === item.name.toLowerCase());
-                    if (prod) {
-                        quantities[prod.id] = item.qty;
-                        const input = document.getElementById(`qty_${prod.id}`);
-                        if (input) input.value = item.qty;
+            // Lee los datos soportando tanto formato local como las columnas de Google Sheets
+            document.getElementById('clientCode').value = order.code || order.Codigo || order.codigo || 'COD-001';
+            document.getElementById('invoiceNum').value = order.invoiceNum || order.Factura || order.factura || 'FAC-0001';
+            document.getElementById('clientName').value = order.client || order.Cliente || order.cliente || '';
+            document.getElementById('clientDoc').value = order.doc || order.Cedula_RIF || order.doc_cliente || '';
+            document.getElementById('clientPhone').value = order.phone || order.Telefono || order.telefono || '';
+            document.getElementById('clientAddress').value = order.address || order.Direccion || order.direccion || '';
+
+            // Reinicia los contadores de productos a cero
+            products.getForEach ? null : products.forEach(p => quantities[p.id] = 0);
+
+            // Obtiene los items sin importar si vienen como texto JSON o arreglo directo
+            let rawItems = order.items || order.Productos || order.productos || [];
+            let itemsList = [];
+            
+            if (typeof rawItems === 'string') {
+                try { itemsList = JSON.parse(rawItems); } catch(e) { itemsList = []; }
+            } else if (Array.isArray(rawItems)) {
+                itemsList = rawItems;
+            }
+
+            // Mapea y asigna las cantidades a cada producto correspondiente
+            if (Array.isArray(itemsList)) {
+                itemsList.forEach(item => {
+                    const itemName = (item.name || item.nombre || item.Producto || '').trim().toLowerCase();
+                    const itemQty = parseInt(item.qty || item.cant || item.cantidad || 0);
+
+                    if (itemName && itemQty > 0) {
+                        const prod = products.find(p => p.name.trim().toLowerCase() === itemName);
+                        if (prod) {
+                            quantities[prod.id] = itemQty;
+                        }
                     }
                 });
             }
+
+            // Redibuja la tabla y recalcula los totales automáticamente en pantalla
             renderProductTable();
             updateCalculations();
         }
