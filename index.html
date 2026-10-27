@@ -742,10 +742,12 @@
             document.getElementById('clientPhone').value = phoneVal;
             document.getElementById('clientAddress').value = addrVal;
 
+            // Reiniciar cantidades
             products.forEach(p => quantities[p.id] = 0);
 
             let rawItems = order.items || order.Productos || order.productos || [];
 
+            // Si viene como texto plano (ej: "1x Belmont Grande, 2x Universal ($54.92)")
             if (typeof rawItems === 'string' && rawItems.trim() !== '') {
                 try {
                     let parsed = JSON.parse(rawItems);
@@ -778,6 +780,7 @@
                 }
             }
 
+            // Si viene como arreglo de objetos
             if (Array.isArray(rawItems)) {
                 rawItems.forEach(item => {
                     const itemName = (item.name || item.nombre || item.Producto || '').trim().toLowerCase();
