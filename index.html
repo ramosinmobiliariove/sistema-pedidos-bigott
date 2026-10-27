@@ -119,6 +119,10 @@
             display: none !important;
         }
 
+        #syncSpinner {
+            display: none;
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -151,7 +155,11 @@
                     <h2 class="mb-0 fw-bold fs-3">EMPRENDIMIENTO EDWIN RAMOS 3</h2>
                     <p class="mb-0 text-light opacity-75 small">Distribución Autorizada Cigarrera Bigott</p>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-outline-light btn-sm fw-bold me-2" onclick="cargarTodoDesdeNube()" title="Sincronizar Datos">
+                        <i class="bi bi-cloud-arrow-down-fill me-1"></i> Sincronizar Nube
+                    </button>
+                    <div id="syncSpinner" class="spinner-border spinner-border-sm text-light me-2" role="status"></div>
                     <button class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#adminModal">
                         <i class="bi bi-gear-fill me-1"></i> Panel de Control
                     </button>
@@ -608,7 +616,191 @@
             
             const today = new Date();
             document.getElementById('dnDate').innerText = today.toLocaleDateString('es-VE');
+
+            cargarTodoDesdeNube();
         });
+
+        function showSpinner(show) {
+            const spinner = document.getElementById('syncSpinner');
+            if (spinner) spinner.style.display = show ? 'inline-block' : 'none';
+        }
+
+        function sincronizarClientesANube() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            showSpinner(true);
+            const payload = { action: "actualizarClientes", clients: clients };
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(payload)
+            }).finally(() => showSpinner(false));
+        }
+
+        function sincronizarPedidosANube() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            showSpinner(true);
+            const payload = { action: "actualizarPedidos", orders: pendingOrders };
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(payload)
+            }).finally(() => showSpinner(false));
+        }
+
+        window.recibirDatosNube = function(data) {
+            showSpinner(false);
+            if (!data) return;
+
+            if (data.clientes && data.clientes.length > 0) {
+                clients = data.clientes.map(c => ({
+                    code: c.Codigo || c.code || c.Código || '',
+                    name: c.Nombre || c.name || '',
+                    doc: c.Cedula_RIF || c.doc || c['Cédula_RIF'] || '',
+                    phone: c.Telefono || c.phone || c['Teléfono'] || '',
+                    address: c.Direccion || c.address || c['Dirección'] || ''
+                })).filter(c => c.name && c.name.trim() !== '');
+                localStorage.setItem('bigott_clients', JSON.stringify(clients));
+                renderAdminClients();
+            }
+
+            if (data.pedidos && data.pedidos.length > 0) {
+                pendingOrders = data.pedidos.map(p => {
+                    let rawProd = p.Productos || p.productos || p.items || '';
+                    return {
+                        date: p.Fecha || p.fecha || p.Fecha_Hora || p.date || '',
+                        invoiceNum: p.Factura || p.factura || p.Factura_Num || p.invoiceNum || 'FAC-0001',
+                        code: p.Codigo || p.codigo || p.Codigo_Cliente || p.code || 'COD-001',
+                        client: p.Cliente || p.cliente || p.Nombre_Cliente || p.client || 'Cliente',
+                        doc: p.Cedula_RIF || p.doc || p['Cédula_RIF'] || '',
+                        phone: p.Telefono || p.phone || p['Teléfono'] || '',
+                        address: p.Direccion || p.address || p['Dirección'] || '',
+                        items: rawProd,
+                        totalUSD: (parseFloat(p.Total_USD || p.totalUSD || 0)).toFixed(2),
+                        paidUSD: (parseFloat(p.Abonado_USD || p.paidUSD || 0)).toFixed(2),
+                        totalBS: p.Total_BS || p.totalBS || '0.00'
+                    };
+                }).filter(o => o.client && o.client.trim() !== '');
+                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
+                renderAdminOrders();
+            }
+
+            if (data.precios && data.precios.length > 0) {
+                products = data.precios.map(pr => ({
+                    id: pr.ID || pr.id || 'prod_' + Math.random(),
+                    name: pr.Producto || pr.Nombre || pr.name || '',
+                    packCost: parseFloat(pr.Costo_Cajetilla || pr.packCost || 0),
+                    margin: parseFloat(pr.Margen_Ganancia || pr.margin || 20),
+                    price: parseFloat(pr.Precio_Brazo || pr.price || 0),
+                    suggestedPrice: parseFloat(pr.Precio_Sugerido || pr.suggestedPrice || 0),
+                    img: 'belmont_grande.png'
+                }));
+                localStorage.setItem('bigott_products', JSON.stringify(products));
+                renderProductTable();
+                renderAdminPrices();
+                renderCatalogTable();
+            }
+        };
+
+        function cargarTodoDesdeNube() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            showSpinner(true);
+
+            const oldScript = document.getElementById('jsonp_sync_script');
+            if (oldScript) oldScript.remove();
+
+            const script = document.createElement('script');
+            script.id = 'jsonp_sync_script';
+            script.src = `${GOOGLE_SCRIPT_URL}?action=obtenerTodo&callback=recibirDatosNube&_=${Date.now()}`;
+            script.onerror = () => {
+                showSpinner(false);
+                alert("Error de conexión al cargar datos desde la nube.");
+            };
+            document.body.appendChild(script);
+        }
+
+        function loadOrderToMainView(order) {
+            if (!order) return;
+
+            const codeVal = order.code || order.Codigo || order.codigo || 'COD-001';
+            const invVal = order.invoiceNum || order.Factura || order.factura || 'FAC-0001';
+            const clientVal = order.client || order.Cliente || order.cliente || '';
+            let docVal = order.doc || order.Cedula_RIF || order['Cédula_RIF'] || '';
+            let phoneVal = order.phone || order.Telefono || order['Teléfono'] || '';
+            let addrVal = order.address || order.Direccion || order['Dirección'] || '';
+
+            const matchedClient = clients.find(c => (c.code && c.code === codeVal) || (c.name && c.name.toLowerCase() === clientVal.toLowerCase()));
+            if (matchedClient) {
+                if (!docVal) docVal = matchedClient.doc || '';
+                if (!phoneVal) phoneVal = matchedClient.phone || '';
+                if (!addrVal) addrVal = matchedClient.address || '';
+            }
+
+            document.getElementById('clientCode').value = codeVal;
+            document.getElementById('invoiceNum').value = invVal;
+            document.getElementById('clientName').value = clientVal;
+            document.getElementById('clientDoc').value = docVal;
+            document.getElementById('clientPhone').value = phoneVal;
+            document.getElementById('clientAddress').value = addrVal;
+
+            products.forEach(p => quantities[p.id] = 0);
+
+            let rawItems = order.items || order.Productos || order.productos || [];
+
+            if (typeof rawItems === 'string' && rawItems.trim() !== '') {
+                try {
+                    let parsed = JSON.parse(rawItems);
+                    if (Array.isArray(parsed)) rawItems = parsed;
+                } catch(e) {
+                    const itemsArray = rawItems.split(',');
+                    itemsArray.forEach(itemStr => {
+                        const cleanStr = itemStr.trim();
+                        const match = cleanStr.match(/(\d+)\s*x\s*(.+)/i) || cleanStr.match(/(.+?)\s*\(?(\d+)\s*(?:brazos|pz|cajetillas)?\)?$/i);
+                        
+                        if (match) {
+                            let qty = 0, namePart = '';
+                            if (!isNaN(match[1])) {
+                                qty = parseInt(match[1]);
+                                namePart = match[2];
+                            } else {
+                                namePart = match[1];
+                                qty = parseInt(match[2]);
+                            }
+
+                            if (qty > 0 && namePart) {
+                                const cleanName = namePart.replace(/\(\$\d+(\.\d+)?\)/g, '').trim().toLowerCase();
+                                const prod = products.find(p => p.name.trim().toLowerCase() === cleanName || cleanName.includes(p.name.trim().toLowerCase()));
+                                if (prod) {
+                                    quantities[prod.id] = (quantities[prod.id] || 0) + qty;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            if (Array.isArray(rawItems)) {
+                rawItems.forEach(item => {
+                    const itemName = (item.name || item.nombre || item.Producto || '').trim().toLowerCase();
+                    const itemQty = parseInt(item.qty || item.cant || item.cantidad || 0);
+
+                    if (itemName && itemQty > 0) {
+                        const prod = products.find(p => p.name.trim().toLowerCase() === itemName || itemName.includes(p.name.trim().toLowerCase()));
+                        if (prod) {
+                            quantities[prod.id] = (quantities[prod.id] || 0) + itemQty;
+                        }
+                    }
+                });
+            }
+
+            renderProductTable();
+            
+            products.forEach(p => {
+                const input = document.getElementById(`qty_${p.id}`);
+                if (input) input.value = quantities[p.id] || 0;
+            });
+
+            updateCalculations();
+        }
 
         function generateNextInvoiceNumber() {
             return `FAC-${String(lastInvoiceCounter).padStart(4, '0')}`;
@@ -718,29 +910,6 @@
             }
         }
 
-        function loadOrderToMainView(order) {
-            document.getElementById('clientCode').value = order.code || 'COD-001';
-            document.getElementById('invoiceNum').value = order.invoiceNum || 'FAC-0001';
-            document.getElementById('clientName').value = order.client || '';
-            document.getElementById('clientDoc').value = order.doc || '';
-            document.getElementById('clientPhone').value = order.phone || '';
-            document.getElementById('clientAddress').value = order.address || '';
-
-            products.forEach(p => quantities[p.id] = 0);
-            if (Array.isArray(order.items)) {
-                order.items.forEach(item => {
-                    const prod = products.find(p => p.name.toLowerCase() === item.name.toLowerCase());
-                    if (prod) {
-                        quantities[prod.id] = item.qty;
-                        const input = document.getElementById(`qty_${prod.id}`);
-                        if (input) input.value = item.qty;
-                    }
-                });
-            }
-            renderProductTable();
-            updateCalculations();
-        }
-
         function editOrder(index) {
             const order = pendingOrders[index];
             loadOrderToMainView(order);
@@ -810,6 +979,7 @@
             }
 
             localStorage.setItem('bigott_clients', JSON.stringify(clients));
+            sincronizarClientesANube();
             selectClient(updatedClient);
             renderAdminClients();
             bootstrap.Modal.getInstance(document.getElementById('quickClientModal')).hide();
@@ -886,32 +1056,6 @@
             }
         }
 
-        function enviarPedidoAGoogleSheets(orden) {
-            if (!GOOGLE_SCRIPT_URL) return;
-            
-            let productosStr = orden.items.map(i => `${i.qty}x ${i.name} ($${i.subtotal})`).join(', ');
-            let pendingUSD = (parseFloat(orden.totalUSD) - parseFloat(orden.paidUSD)).toFixed(2);
-
-            const params = new URLSearchParams({
-                date: orden.date,
-                invoiceNum: orden.invoiceNum,
-                code: orden.code,
-                client: orden.client,
-                items: productosStr,
-                totalUSD: orden.totalUSD,
-                paidUSD: orden.paidUSD,
-                pendingUSD: pendingUSD,
-                totalBS: orden.totalBS
-            });
-
-            fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-                method: "GET",
-                mode: "no-cors"
-            })
-            .then(() => console.log("Sincronizado con Google Sheets con éxito."))
-            .catch(err => console.error("Error al sincronizar con Google Sheets:", err));
-        }
-
         function saveOrderManual(clearAfter = true) {
             const code = document.getElementById('clientCode').value || 'COD-001';
             const invoiceNum = document.getElementById('invoiceNum').value || generateNextInvoiceNumber();
@@ -971,7 +1115,7 @@
             pendingOrders.push(newOrder);
             localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
 
-            enviarPedidoAGoogleSheets(newOrder);
+            sincronizarPedidosANube();
 
             if (existingIndex < 0) {
                 lastInvoiceCounter++;
@@ -1230,6 +1374,7 @@
             if (confirm('¿Eliminar cliente?')) {
                 clients.splice(index, 1);
                 localStorage.setItem('bigott_clients', JSON.stringify(clients));
+                sincronizarClientesANube();
                 renderAdminClients();
             }
         }
@@ -1289,6 +1434,7 @@
             pendingOrders[index].paidUSD = newPaid.toFixed(2);
             localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
             renderAdminOrders();
+            sincronizarPedidosANube();
             logActivity('Abono a Pedido', o.client, `Abono de $${amount.toFixed(2)} a factura ${o.invoiceNum}`);
             alert(`¡Abono registrado con éxito! Pendiente restante: $${(totalUSD - newPaid).toFixed(2)}`);
         }
@@ -1298,6 +1444,7 @@
                 pendingOrders.splice(index, 1);
                 localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
                 renderAdminOrders();
+                sincronizarPedidosANube();
             }
         }
 
@@ -1309,6 +1456,7 @@
                 localStorage.setItem('bigott_completed_orders', JSON.stringify(completedOrders));
                 localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
                 renderAdminOrders();
+                sincronizarPedidosANube();
                 updateStatistics();
                 alert('¡Pedido despachado con éxito!');
             }
