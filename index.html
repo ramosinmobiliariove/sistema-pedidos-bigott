@@ -627,59 +627,66 @@
         }
 
         // Función que recibe los datos desde Google Sheets (JSONP para evitar bloqueo CORS en móviles)
-        window.recibirDatosNube = function(data) {
-            showSpinner(false);
-            if (!data) return;
+       window.recibirDatosNube = function(data) {
+           showSpinner(false);
+           if (!data) return;
 
-            if (data.clientes && data.clientes.length > 0) {
-                clients = data.clientes.map(c => ({
-                    code: c.Codigo || c.code,
-                    name: c.Nombre || c.name,
-                    doc: c.Cedula_RIF || c.doc,
-                    phone: c.Telefono || c.phone,
-                    address: c.Direccion || c.address
-                }));
-                localStorage.setItem('bigott_clients', JSON.stringify(clients));
-                renderAdminClients();
-            }
+           if (data.clientes && data.clientes.length > 0) {
+               clients = data.clientes.map(c => ({
+                   code: c.Codigo || c.code || c.Código || '',
+                   name: c.Nombre || c.name || '',
+                   doc: c.Cedula_RIF || c.doc || c['Cédula_RIF'] || '',
+                   phone: c.Telefono || c.phone || c.Teléfono || '',
+                   address: c.Direccion || c.address || c.Dirección || ''
+               }));
+               localStorage.setItem('bigott_clients', JSON.stringify(clients));
+               renderAdminClients();
+           }
 
-            if (data.pedidos && data.pedidos.length > 0) {
-                pendingOrders = data.pedidos.map(p => {
-                    let parsedItems = [];
-                    try { parsedItems = JSON.parse(p.Productos || p.items); } catch(e) { parsedItems = []; }
-                    return {
-                        date: p.Fecha || p.date,
-                        invoiceNum: p.Factura || p.invoiceNum,
-                        code: p.Codigo || p.code,
-                        client: p.Cliente || p.client,
-                        doc: p.Cedula_RIF || p.doc || '',
-                        phone: p.Telefono || p.phone || '',
-                        address: p.Direccion || p.address || '',
-                        items: parsedItems,
-                        totalUSD: (parseFloat(p.Total_USD || p.totalUSD) || 0).toFixed(2),
-                        paidUSD: (parseFloat(p.Abonado_USD || p.paidUSD) || 0).toFixed(2),
-                        totalBS: p.Total_BS || p.totalBS || '0.00'
-                    };
-                });
-                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
-                renderAdminOrders();
-            }
+           if (data.pedidos && data.pedidos.length > 0) {
+               pendingOrders = data.pedidos.map(p => {
+                   let parsedItems = [];
+                   let rawProd = p.Productos || p.productos || p.items || '';
+                   try { 
+                       parsedItems = typeof rawProd === 'string' ? JSON.parse(rawProd) : rawProd; 
+                   } catch(e) { 
+                       parsedItems = [{ name: rawProd, qty: 1, subtotal: p.Total_USD || p.totalUSD || 0 }]; 
+                   }
+                   if (!Array.isArray(parsedItems)) parsedItems = [];
 
-            if (data.precios && data.precios.length > 0) {
-                products = data.precios.map(pr => ({
-                    id: pr.ID || pr.id,
-                    name: pr.Nombre || pr.name,
-                    packCost: parseFloat(pr.Costo_Cajetilla || pr.packCost),
-                    margin: parseFloat(pr.Margen_Ganancia || pr.margin),
-                    price: parseFloat(pr.Precio_Brazo || pr.price),
-                    suggestedPrice: parseFloat(pr.Precio_Sugerido || pr.suggestedPrice),
-                    img: pr.id ? `${pr.id}.png` : 'belmont_grande.png'
-                }));
-                localStorage.setItem('bigott_products', JSON.stringify(products));
-                renderProductTable();
-                renderAdminPrices();
-                renderCatalogTable();
-            }
+                   return {
+                       date: p.Fecha || p.fecha || p.Fecha_Hora || p.date || '',
+                       invoiceNum: p.Factura || p.factura || p.Factura_Num || p.invoiceNum || 'FAC-0001',
+                       code: p.Codigo || p.codigo || p.Codigo_Cliente || p.code || 'COD-001',
+                       client: p.Cliente || p.cliente || p.Nombre_Cliente || p.client || 'Cliente',
+                       doc: p.Cedula_RIF || p.doc || '',
+                       phone: p.Telefono || p.phone || '',
+                       address: p.Direccion || p.address || '',
+                       items: parsedItems,
+                       totalUSD: (parseFloat(p.Total_USD || p.totalUSD || 0)).toFixed(2),
+                       paidUSD: (parseFloat(p.Abonado_USD || p.paidUSD || 0)).toFixed(2),
+                       totalBS: p.Total_BS || p.totalBS || '0.00'
+                   };
+               });
+               localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
+               renderAdminOrders();
+           }
+
+           if (data.precios && data.precios.length > 0) {
+               products = data.precios.map(pr => ({
+                   id: pr.ID || pr.id || 'prod_' + Math.random(),
+                   name: pr.Producto || pr.Nombre || pr.name || '',
+                   packCost: parseFloat(pr.Costo_Cajetilla || pr.packCost || 0),
+                   margin: parseFloat(pr.Margen_Ganancia || pr.margin || 20),
+                   price: parseFloat(pr.Precio_Brazo || pr.price || 0),
+                   suggestedPrice: parseFloat(pr.Precio_Sugerido || pr.suggestedPrice || 0),
+                   img: 'belmont_grande.png'
+               }));
+               localStorage.setItem('bigott_products', JSON.stringify(products));
+               renderProductTable();
+               renderAdminPrices();
+               renderCatalogTable();
+           }
         };
 
         // Función que invoca la descarga de datos desde la nube
