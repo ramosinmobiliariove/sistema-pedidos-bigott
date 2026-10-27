@@ -722,7 +722,100 @@
             if (!order) return;
 
             // 1. Cargar campos del cliente y factura con todos los nombres posibles de columnas
+            const codeVal = order.code || order.Codigo || order.codigofunction loadOrderToMainView(order) {
+            if (!order) return;
+
+            // 1. Cargar datos del cliente y factura
             const codeVal = order.code || order.Codigo || order.codigo || 'COD-001';
+            const invVal = order.invoiceNum || order.Factura || order.factura || 'FAC-0001';
+            const clientVal = order.client || order.Cliente || order.cliente || '';
+            let docVal = order.doc || order.Cedula_RIF || order['Cédula_RIF'] || '';
+            let phoneVal = order.phone || order.Telefono || order['Teléfono'] || '';
+            let addrVal = order.address || order.Direccion || order['Dirección'] || '';
+
+            const matchedClient = clients.find(c => (c.code && c.code === codeVal) || (c.name && c.name.toLowerCase() === clientVal.toLowerCase()));
+            if (matchedClient) {
+                if (!docVal) docVal = matchedClient.doc || '';
+                if (!phoneVal) phoneVal = matchedClient.phone || '';
+                if (!addrVal) addrVal = matchedClient.address || '';
+            }
+
+            document.getElementById('clientCode').value = codeVal;
+            document.getElementById('invoiceNum').value = invVal;
+            document.getElementById('clientName').value = clientVal;
+            document.getElementById('clientDoc').value = docVal;
+            document.getElementById('clientPhone').value = phoneVal;
+            document.getElementById('clientAddress').value = addrVal;
+
+            // 2. Reiniciar todas las cantidades a cero
+            products.forEach(p => quantities[p.id] = 0);
+
+            // 3. Procesar los productos con flexibilidad total (JSON o Texto plano)
+            let rawItems = order.items || order.Productos || order.productos || [];
+
+            if (typeof rawItems === 'string' && rawItems.trim() !== '') {
+                // Intentar parsear como JSON por si acaso
+                try {
+                    let parsed = JSON.parse(rawItems);
+                    if (Array.isArray(parsed)) rawItems = parsed;
+                } catch(e) {
+                    // Si no es JSON, es texto plano (ej: "1x Belmont Grande, 2x Universal")
+                    const itemsArray = rawItems.split(',');
+                    itemsArray.forEach(itemStr => {
+                        // Limpiar y buscar formato cantidad + 'x' + nombre
+                        const cleanStr = itemStr.trim();
+                        // Buscar patrón como "1x", "2x" al inicio o en el texto
+                        const match = cleanStr.match(/(\d+)\s*x\s*(.+)/i) || cleanStr.match(/(.+?)\s*\(?(\d+)\s*(?:brazos|pz|cajetillas)?\)?$/i);
+                        
+                        if (match) {
+                            // Determinar cuál grupo es la cantidad y cuál es el nombre
+                            let qty = 0, namePart = '';
+                            if (!isNaN(match[1])) {
+                                qty = parseInt(match[1]);
+                                namePart = match[2];
+                            } else {
+                                namePart = match[1];
+                                qty = parseInt(match[2]);
+                            }
+
+                            if (qty > 0 && namePart) {
+                                const cleanName = namePart.replace(/\(\$\d+(\.\d+)?\)/g, '').trim().toLowerCase();
+                                const prod = products.find(p => p.name.trim().toLowerCase() === cleanName || cleanName.includes(p.name.trim().toLowerCase()));
+                                if (prod) {
+                                    quantities[prod.id] = (quantities[prod.id] || 0) + qty;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Si vino como arreglo de objetos directo
+            if (Array.isArray(rawItems)) {
+                rawItems.forEach(item => {
+                    const itemName = (item.name || item.nombre || item.Producto || '').trim().toLowerCase();
+                    const itemQty = parseInt(item.qty || item.cant || item.cantidad || 0);
+
+                    if (itemName && itemQty > 0) {
+                        const prod = products.find(p => p.name.trim().toLowerCase() === itemName || itemName.includes(p.name.trim().toLowerCase()));
+                        if (prod) {
+                            quantities[prod.id] = (quantities[prod.id] || 0) + itemQty;
+                        }
+                    }
+                });
+            }
+
+            // 4. Actualizar visualmente la tabla de productos y la nota de entrega con los cálculos
+            renderProductTable();
+            
+            // Asignar los valores a los inputs visuales de brazos para que se reflejen en pantalla
+            products.forEach(p => {
+                const input = document.getElementById(`qty_${p.id}`);
+                if (input) input.value = quantities[p.id] || 0;
+            });
+
+            updateCalculations();
+        } || 'COD-001';
             const invVal = order.invoiceNum || order.Factura || order.factura || 'FAC-0001';
             const clientVal = order.client || order.Cliente || order.cliente || '';
             let docVal = order.doc || order.Cedula_RIF || order['Cédula_RIF'] || '';
