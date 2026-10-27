@@ -617,7 +617,6 @@
             const today = new Date();
             document.getElementById('dnDate').innerText = today.toLocaleDateString('es-VE');
 
-            // Carga automática al abrir en el teléfono o PC
             cargarTodoDesdeNube();
         });
 
@@ -626,7 +625,6 @@
             if (spinner) spinner.style.display = show ? 'inline-block' : 'none';
         }
 
-        // Función corregida para sincronizar Clientes a Google Sheets por POST
         function sincronizarClientesANube() {
             if (!GOOGLE_SCRIPT_URL) return;
             showSpinner(true);
@@ -638,7 +636,6 @@
             }).finally(() => showSpinner(false));
         }
 
-        // Función corregida para sincronizar Pedidos a Google Sheets por POST
         function sincronizarPedidosANube() {
             if (!GOOGLE_SCRIPT_URL) return;
             showSpinner(true);
@@ -650,7 +647,6 @@
             }).finally(() => showSpinner(false));
         }
 
-        // Función que recibe los datos desde Google Sheets (JSONP para evitar bloqueo CORS en móviles)
         window.recibirDatosNube = function(data) {
             showSpinner(false);
             if (!data) return;
@@ -669,24 +665,16 @@
 
             if (data.pedidos && data.pedidos.length > 0) {
                 pendingOrders = data.pedidos.map(p => {
-                    let parsedItems = [];
                     let rawProd = p.Productos || p.productos || p.items || '';
-                    try { 
-                        parsedItems = typeof rawProd === 'string' ? JSON.parse(rawProd) : rawProd; 
-                    } catch(e) { 
-                        parsedItems = [{ name: rawProd, qty: 1, subtotal: p.Total_USD || p.totalUSD || 0 }]; 
-                    }
-                    if (!Array.isArray(parsedItems)) parsedItems = [];
-
                     return {
                         date: p.Fecha || p.fecha || p.Fecha_Hora || p.date || '',
                         invoiceNum: p.Factura || p.factura || p.Factura_Num || p.invoiceNum || 'FAC-0001',
                         code: p.Codigo || p.codigo || p.Codigo_Cliente || p.code || 'COD-001',
                         client: p.Cliente || p.cliente || p.Nombre_Cliente || p.client || 'Cliente',
-                        doc: p.Cedula_RIF || p.doc || '',
-                        phone: p.Telefono || p.phone || '',
-                        address: p.Direccion || p.address || '',
-                        items: parsedItems,
+                        doc: p.Cedula_RIF || p.doc || p['Cédula_RIF'] || '',
+                        phone: p.Telefono || p.phone || p['Teléfono'] || '',
+                        address: p.Direccion || p.address || p['Dirección'] || '',
+                        items: rawProd,
                         totalUSD: (parseFloat(p.Total_USD || p.totalUSD || 0)).toFixed(2),
                         paidUSD: (parseFloat(p.Abonado_USD || p.paidUSD || 0)).toFixed(2),
                         totalBS: p.Total_BS || p.totalBS || '0.00'
@@ -713,7 +701,6 @@
             }
         };
 
-        // Función que invoca la descarga de datos desde la nube
         function cargarTodoDesdeNube() {
             if (!GOOGLE_SCRIPT_URL) return;
             showSpinner(true);
@@ -729,6 +716,80 @@
                 alert("Error de conexión al cargar datos desde la nube.");
             };
             document.body.appendChild(script);
+        }
+
+        function loadOrderToMainView(order) {
+            if (!order) return;
+
+            // 1. Cargar campos del cliente y factura con todos los nombres posibles de columnas
+            const codeVal = order.code || order.Codigo || order.codigo || 'COD-001';
+            const invVal = order.invoiceNum || order.Factura || order.factura || 'FAC-0001';
+            const clientVal = order.client || order.Cliente || order.cliente || '';
+            let docVal = order.doc || order.Cedula_RIF || order['Cédula_RIF'] || '';
+            let phoneVal = order.phone || order.Telefono || order['Teléfono'] || '';
+            let addrVal = order.address || order.Direccion || order['Dirección'] || '';
+
+            // Si faltaba algún dato del cliente en la orden, buscarlo en la base de datos de clientes
+            const matchedClient = clients.find(c => (c.code && c.code === codeVal) || (c.name && c.name.toLowerCase() === clientVal.toLowerCase()));
+            if (matchedClient) {
+                if (!docVal) docVal = matchedClient.doc || '';
+                if (!phoneVal) phoneVal = matchedClient.phone || '';
+                if (!addrVal) addrVal = matchedClient.address || '';
+            }
+
+            document.getElementById('clientCode').value = codeVal;
+            document.getElementById('invoiceNum').value = invVal;
+            document.getElementById('clientName').value = clientVal;
+            document.getElementById('clientDoc').value = docVal;
+            document.getElementById('clientPhone').value = phoneVal;
+            document.getElementById('clientAddress').value = addrVal;
+
+            // 2. Reiniciar cantidades a cero
+            products.forEach(p => quantities[p.id] = 0);
+
+            // 3. Procesar lista de productos (Soporta JSON o Texto redactado "1x Belmont, 2x Universal")
+            let rawItems = order.items || order.Productos || order.productos || [];
+            let parsedSuccess = false;
+
+            if (typeof rawItems === 'string') {
+                try {
+                    let jsonParsed = JSON.parse(rawItems);
+                    if (Array.isArray(jsonParsed)) {
+                        rawItems = jsonParsed;
+                        parsedSuccess = true;
+                    }
+                } catch(e) { parsedSuccess = false; }
+            } else if (Array.isArray(rawItems)) {
+                parsedSuccess = true;
+            }
+
+            if (parsedSuccess && Array.isArray(rawItems)) {
+                rawItems.forEach(item => {
+                    const itemName = (item.name || item.nombre || item.Producto || '').trim().toLowerCase();
+                    const itemQty = parseInt(item.qty || item.cant || item.cantidad || 0);
+
+                    if (itemName && itemQty > 0) {
+                        const prod = products.find(p => p.name.trim().toLowerCase() === itemName);
+                        if (prod) quantities[prod.id] = itemQty;
+                    }
+                });
+            } else if (typeof rawItems === 'string' && rawItems.trim() !== '') {
+                // Parsear texto formateado "2x Belmont Grande, 1x Universal"
+                const parts = rawItems.split(',');
+                parts.forEach(part => {
+                    const match = part.trim().match(/^(\d+)x\s+(.+)$/i);
+                    if (match) {
+                        const qty = parseInt(match[1]);
+                        const pName = match[2].trim().toLowerCase();
+                        const prod = products.find(p => p.name.trim().toLowerCase() === pName);
+                        if (prod) quantities[prod.id] = qty;
+                    }
+                });
+            }
+
+            // 4. Redibujar tabla e inputs de productos y actualizar totales en pantalla
+            renderProductTable();
+            updateCalculations();
         }
 
         function generateNextInvoiceNumber() {
@@ -837,54 +898,6 @@
             } else {
                 alert(`No se encontró la factura: ${cleanNum}`);
             }
-        }
-
-        function loadOrderToMainView(order) {
-            if (!order) return;
-
-            // 1. Cargar campos del cliente y factura con múltiples respaldos
-            document.getElementById('clientCode').value = order.code || order.Codigo || order.codigo || 'COD-001';
-            document.getElementById('invoiceNum').value = order.invoiceNum || order.Factura || order.factura || 'FAC-0001';
-            document.getElementById('clientName').value = order.client || order.Cliente || order.cliente || '';
-            document.getElementById('clientDoc').value = order.doc || order.Cedula_RIF || order.doc_cliente || '';
-            document.getElementById('clientPhone').value = order.phone || order.Telefono || order.telefono || '';
-            document.getElementById('clientAddress').value = order.address || order.Direccion || order.direccion || '';
-
-            // 2. Reiniciar todas las cantidades a cero
-            products.forEach(p => {
-                quantities[p.id] = 0;
-            });
-
-            // 3. Normalizar la lista de productos (sea JSON o arreglo)
-            let itemsList = [];
-            if (typeof order.items === 'string') {
-                try { itemsList = JSON.parse(order.items); } catch(e) { itemsList = []; }
-            } else if (Array.isArray(order.items)) {
-                itemsList = order.items;
-            } else if (typeof order.Productos === 'string') {
-                try { itemsList = JSON.parse(order.Productos); } catch(e) { itemsList = []; }
-            } else if (Array.isArray(order.Productos)) {
-                itemsList = order.Productos;
-            }
-
-            // 4. Mapear y asignar cantidades exactas
-            if (Array.isArray(itemsList)) {
-                itemsList.forEach(item => {
-                    const itemName = (item.name || item.nombre || item.Producto || '').trim().toLowerCase();
-                    const itemQty = parseInt(item.qty || item.cant || item.cantidad || item.Brazos || 0);
-
-                    if (itemName && itemQty > 0) {
-                        const prod = products.find(p => p.name.trim().toLowerCase() === itemName);
-                        if (prod) {
-                            quantities[prod.id] = itemQty;
-                        }
-                    }
-                });
-            }
-
-            // 5. Redibujar tabla de productos y refrescar nota de entrega y totales
-            renderProductTable();
-            updateCalculations();
         }
 
         function editOrder(index) {
