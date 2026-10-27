@@ -626,67 +626,91 @@
             if (spinner) spinner.style.display = show ? 'inline-block' : 'none';
         }
 
+        // Función corregida para sincronizar Clientes a Google Sheets por POST
+        function sincronizarClientesANube() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            showSpinner(true);
+            const payload = { action: "actualizarClientes", clients: clients };
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(payload)
+            }).finally(() => showSpinner(false));
+        }
+
+        // Función corregida para sincronizar Pedidos a Google Sheets por POST
+        function sincronizarPedidosANube() {
+            if (!GOOGLE_SCRIPT_URL) return;
+            showSpinner(true);
+            const payload = { action: "actualizarPedidos", orders: pendingOrders };
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(payload)
+            }).finally(() => showSpinner(false));
+        }
+
         // Función que recibe los datos desde Google Sheets (JSONP para evitar bloqueo CORS en móviles)
-       window.recibirDatosNube = function(data) {
-           showSpinner(false);
-           if (!data) return;
+        window.recibirDatosNube = function(data) {
+            showSpinner(false);
+            if (!data) return;
 
-           if (data.clientes && data.clientes.length > 0) {
-               clients = data.clientes.map(c => ({
-                   code: c.Codigo || c.code || c.Código || '',
-                   name: c.Nombre || c.name || '',
-                   doc: c.Cedula_RIF || c.doc || c['Cédula_RIF'] || '',
-                   phone: c.Telefono || c.phone || c.Teléfono || '',
-                   address: c.Direccion || c.address || c.Dirección || ''
-               }));
-               localStorage.setItem('bigott_clients', JSON.stringify(clients));
-               renderAdminClients();
-           }
+            if (data.clientes && data.clientes.length > 0) {
+                clients = data.clientes.map(c => ({
+                    code: c.Codigo || c.code || c.Código || '',
+                    name: c.Nombre || c.name || '',
+                    doc: c.Cedula_RIF || c.doc || c['Cédula_RIF'] || '',
+                    phone: c.Telefono || c.phone || c.Teléfono || '',
+                    address: c.Direccion || c.address || c.Dirección || ''
+                })).filter(c => c.name && c.name.trim() !== '');
+                localStorage.setItem('bigott_clients', JSON.stringify(clients));
+                renderAdminClients();
+            }
 
-           if (data.pedidos && data.pedidos.length > 0) {
-               pendingOrders = data.pedidos.map(p => {
-                   let parsedItems = [];
-                   let rawProd = p.Productos || p.productos || p.items || '';
-                   try { 
-                       parsedItems = typeof rawProd === 'string' ? JSON.parse(rawProd) : rawProd; 
-                   } catch(e) { 
-                       parsedItems = [{ name: rawProd, qty: 1, subtotal: p.Total_USD || p.totalUSD || 0 }]; 
-                   }
-                   if (!Array.isArray(parsedItems)) parsedItems = [];
+            if (data.pedidos && data.pedidos.length > 0) {
+                pendingOrders = data.pedidos.map(p => {
+                    let parsedItems = [];
+                    let rawProd = p.Productos || p.productos || p.items || '';
+                    try { 
+                        parsedItems = typeof rawProd === 'string' ? JSON.parse(rawProd) : rawProd; 
+                    } catch(e) { 
+                        parsedItems = [{ name: rawProd, qty: 1, subtotal: p.Total_USD || p.totalUSD || 0 }]; 
+                    }
+                    if (!Array.isArray(parsedItems)) parsedItems = [];
 
-                   return {
-                       date: p.Fecha || p.fecha || p.Fecha_Hora || p.date || '',
-                       invoiceNum: p.Factura || p.factura || p.Factura_Num || p.invoiceNum || 'FAC-0001',
-                       code: p.Codigo || p.codigo || p.Codigo_Cliente || p.code || 'COD-001',
-                       client: p.Cliente || p.cliente || p.Nombre_Cliente || p.client || 'Cliente',
-                       doc: p.Cedula_RIF || p.doc || '',
-                       phone: p.Telefono || p.phone || '',
-                       address: p.Direccion || p.address || '',
-                       items: parsedItems,
-                       totalUSD: (parseFloat(p.Total_USD || p.totalUSD || 0)).toFixed(2),
-                       paidUSD: (parseFloat(p.Abonado_USD || p.paidUSD || 0)).toFixed(2),
-                       totalBS: p.Total_BS || p.totalBS || '0.00'
-                   };
-               });
-               localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
-               renderAdminOrders();
-           }
+                    return {
+                        date: p.Fecha || p.fecha || p.Fecha_Hora || p.date || '',
+                        invoiceNum: p.Factura || p.factura || p.Factura_Num || p.invoiceNum || 'FAC-0001',
+                        code: p.Codigo || p.codigo || p.Codigo_Cliente || p.code || 'COD-001',
+                        client: p.Cliente || p.cliente || p.Nombre_Cliente || p.client || 'Cliente',
+                        doc: p.Cedula_RIF || p.doc || '',
+                        phone: p.Telefono || p.phone || '',
+                        address: p.Direccion || p.address || '',
+                        items: parsedItems,
+                        totalUSD: (parseFloat(p.Total_USD || p.totalUSD || 0)).toFixed(2),
+                        paidUSD: (parseFloat(p.Abonado_USD || p.paidUSD || 0)).toFixed(2),
+                        totalBS: p.Total_BS || p.totalBS || '0.00'
+                    };
+                }).filter(o => o.client && o.client.trim() !== '');
+                localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
+                renderAdminOrders();
+            }
 
-           if (data.precios && data.precios.length > 0) {
-               products = data.precios.map(pr => ({
-                   id: pr.ID || pr.id || 'prod_' + Math.random(),
-                   name: pr.Producto || pr.Nombre || pr.name || '',
-                   packCost: parseFloat(pr.Costo_Cajetilla || pr.packCost || 0),
-                   margin: parseFloat(pr.Margen_Ganancia || pr.margin || 20),
-                   price: parseFloat(pr.Precio_Brazo || pr.price || 0),
-                   suggestedPrice: parseFloat(pr.Precio_Sugerido || pr.suggestedPrice || 0),
-                   img: 'belmont_grande.png'
-               }));
-               localStorage.setItem('bigott_products', JSON.stringify(products));
-               renderProductTable();
-               renderAdminPrices();
-               renderCatalogTable();
-           }
+            if (data.precios && data.precios.length > 0) {
+                products = data.precios.map(pr => ({
+                    id: pr.ID || pr.id || 'prod_' + Math.random(),
+                    name: pr.Producto || pr.Nombre || pr.name || '',
+                    packCost: parseFloat(pr.Costo_Cajetilla || pr.packCost || 0),
+                    margin: parseFloat(pr.Margen_Ganancia || pr.margin || 20),
+                    price: parseFloat(pr.Precio_Brazo || pr.price || 0),
+                    suggestedPrice: parseFloat(pr.Precio_Sugerido || pr.suggestedPrice || 0),
+                    img: 'belmont_grande.png'
+                }));
+                localStorage.setItem('bigott_products', JSON.stringify(products));
+                renderProductTable();
+                renderAdminPrices();
+                renderCatalogTable();
+            }
         };
 
         // Función que invoca la descarga de datos desde la nube
@@ -907,6 +931,7 @@
             }
 
             localStorage.setItem('bigott_clients', JSON.stringify(clients));
+            sincronizarClientesANube();
             selectClient(updatedClient);
             renderAdminClients();
             bootstrap.Modal.getInstance(document.getElementById('quickClientModal')).hide();
@@ -983,32 +1008,6 @@
             }
         }
 
-        function enviarPedidoAGoogleSheets(orden) {
-            if (!GOOGLE_SCRIPT_URL) return;
-            
-            let productosStr = orden.items.map(i => `${i.qty}x ${i.name} ($${i.subtotal})`).join(', ');
-            let pendingUSD = (parseFloat(orden.totalUSD) - parseFloat(orden.paidUSD)).toFixed(2);
-
-            const params = new URLSearchParams({
-                date: orden.date,
-                invoiceNum: orden.invoiceNum,
-                code: orden.code,
-                client: orden.client,
-                items: productosStr,
-                totalUSD: orden.totalUSD,
-                paidUSD: orden.paidUSD,
-                pendingUSD: pendingUSD,
-                totalBS: orden.totalBS
-            });
-
-            fetch(`${GOOGLE_SCRIPT_URL}?${params.toString()}`, {
-                method: "GET",
-                mode: "no-cors"
-            })
-            .then(() => console.log("Sincronizado con Google Sheets con éxito."))
-            .catch(err => console.error("Error al sincronizar con Google Sheets:", err));
-        }
-
         function saveOrderManual(clearAfter = true) {
             const code = document.getElementById('clientCode').value || 'COD-001';
             const invoiceNum = document.getElementById('invoiceNum').value || generateNextInvoiceNumber();
@@ -1068,7 +1067,7 @@
             pendingOrders.push(newOrder);
             localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
 
-            enviarPedidoAGoogleSheets(newOrder);
+            sincronizarPedidosANube();
 
             if (existingIndex < 0) {
                 lastInvoiceCounter++;
@@ -1327,6 +1326,7 @@
             if (confirm('¿Eliminar cliente?')) {
                 clients.splice(index, 1);
                 localStorage.setItem('bigott_clients', JSON.stringify(clients));
+                sincronizarClientesANube();
                 renderAdminClients();
             }
         }
@@ -1386,6 +1386,7 @@
             pendingOrders[index].paidUSD = newPaid.toFixed(2);
             localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
             renderAdminOrders();
+            sincronizarPedidosANube();
             logActivity('Abono a Pedido', o.client, `Abono de $${amount.toFixed(2)} a factura ${o.invoiceNum}`);
             alert(`¡Abono registrado con éxito! Pendiente restante: $${(totalUSD - newPaid).toFixed(2)}`);
         }
@@ -1395,6 +1396,7 @@
                 pendingOrders.splice(index, 1);
                 localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
                 renderAdminOrders();
+                sincronizarPedidosANube();
             }
         }
 
@@ -1406,6 +1408,7 @@
                 localStorage.setItem('bigott_completed_orders', JSON.stringify(completedOrders));
                 localStorage.setItem('bigott_orders', JSON.stringify(pendingOrders));
                 renderAdminOrders();
+                sincronizarPedidosANube();
                 updateStatistics();
                 alert('¡Pedido despachado con éxito!');
             }
